@@ -40,12 +40,12 @@ export function calculatePrayerTimes(
   method: CalculationMethod,
   asrCalculation: AsrCalculation = 'Standard',
   timeAdjustments: TimeAdjustments = {
-    fajr: 0,
-    sunrise: 0,
-    dhuhr: 0,
-    asr: 0,
-    maghrib: method === 'KemenagRI' ? 2 : 0, // Penyesuaian maghrib 2 menit untuk Kemenag RI
-    isha: 0
+    fajr: method === 'KemenagRI' ? 2 : 0, // Penyesuaian 2 menit untuk Kemenag RI
+    sunrise: method === 'KemenagRI' ? 2 : 0, // Penyesuaian 2 menit untuk Kemenag RI
+    dhuhr: method === 'KemenagRI' ? 2 : 0, // Penyesuaian 2 menit untuk Kemenag RI
+    asr: method === 'KemenagRI' ? 2 : 0, // Penyesuaian 2 menit untuk Kemenag RI
+    maghrib: method === 'KemenagRI' ? 2 : 0, // Penyesuaian 2 menit untuk Kemenag RI
+    isha: method === 'KemenagRI' ? 2 : 0 // Penyesuaian 2 menit untuk Kemenag RI
   },
   date: Date = new Date()
 ): {

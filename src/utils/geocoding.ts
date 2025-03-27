@@ -45,3 +45,26 @@ export async function getCityName(latitude: number, longitude: number): Promise<
     return 'Unknown Location';
   }
 }
+
+export async function getCountry(latitude: number, longitude: number): Promise<string> {
+  try {
+    const response = await fetch(
+      `/api/geocode?lat=${latitude}&lon=${longitude}`
+    );
+    
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    
+    const data = await response.json();
+    
+    if (!data || !data.address || !data.address.country) {
+      throw new Error('No country data received');
+    }
+
+    return data.address.country;
+  } catch (error) {
+    console.error('Error fetching country:', error);
+    return 'Unknown';
+  }
+}

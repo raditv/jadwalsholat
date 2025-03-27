@@ -4,7 +4,7 @@ import { HijriDateDisplay } from './components/HijriDate';
 import { Settings, MapPin, Moon, Sun, Sunrise, Coffee, Sun as SunIcon, Cloud, Sunset, Moon as MoonIcon, Clock, Bell, Calendar, Star, CloudSun } from 'lucide-react';
 import { SettingsPanel } from './components/SettingsPanel';
 import { calculatePrayerTimes, getNextPrayer, getCurrentPrayer } from './utils/prayerTimes';
-import { getCityName } from './utils/geocoding';
+import { getCityName, getCountry } from './utils/geocoding';
 import { Tabs } from './components/Tabs';
 import { IqamaCountdown } from './components/IqamaCountdown';
 import { format, addDays, isSameMinute } from 'date-fns';
@@ -34,12 +34,12 @@ const DEFAULT_SETTINGS: Settings = {
     isha: 15,
   },
   timeAdjustments: {
-    fajr: 0,
-    sunrise: 0,
-    dhuhr: 0,
-    asr: 0,
-    maghrib: 0,
-    isha: 0,
+    fajr: 2,
+    sunrise: 2,
+    dhuhr: 2,
+    asr: 2,
+    maghrib: 2,
+    isha: 2,
   },
   notificationsEnabled: false,
 };
@@ -91,6 +91,11 @@ function App() {
     };
     setCoordinates(defaultCoords);
     getCityName(defaultCoords.latitude, defaultCoords.longitude).then(setCityName);
+    getCountry(defaultCoords.latitude, defaultCoords.longitude).then(country => {
+      if (country === 'Indonesia') {
+        updateSettings({ calculationMethod: 'KemenagRI' });
+      }
+    });
 
     // Then try to get actual location
     if (navigator.geolocation) {
@@ -103,6 +108,14 @@ function App() {
           setCoordinates(coords);
           const city = await getCityName(coords.latitude, coords.longitude);
           setCityName(city);
+          
+          // Set calculation method based on country
+          const country = await getCountry(coords.latitude, coords.longitude);
+          if (country === 'Indonesia') {
+            updateSettings({ calculationMethod: 'KemenagRI' });
+          } else {
+            updateSettings({ calculationMethod: 'MuslimWorldLeague' });
+          }
         },
         (error) => {
           console.error('Error getting location:', error);
@@ -142,6 +155,15 @@ function App() {
     setCoordinates(coords);
     const city = await getCityName(lat, lon);
     setCityName(city);
+    
+    // Set calculation method based on country
+    const country = await getCountry(lat, lon);
+    if (country === 'Indonesia') {
+      updateSettings({ calculationMethod: 'KemenagRI' });
+    } else {
+      updateSettings({ calculationMethod: 'MuslimWorldLeague' });
+    }
+    
     setIsCitySelectorOpen(false);
   };
 

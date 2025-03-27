@@ -22,7 +22,6 @@ export function RamadanCountdown({ maghribTime, fajrTime, isNightTime }: Ramadan
         setTimeLeft(getTimeUntilSuhoorEnd(fajrTime));
         // Hitung progress untuk sahur
         const now = new Date();
-        const suhoorEnd = new Date(fajrTime);
         const totalDuration = 24 * 60 * 60 * 1000; // 24 jam dalam milidetik
         const elapsed = now.getTime() - new Date(maghribTime).getTime();
         const progress = (elapsed / totalDuration) * 100;
