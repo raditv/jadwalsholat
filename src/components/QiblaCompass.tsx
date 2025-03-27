@@ -17,6 +17,7 @@ export const QiblaCompass = ({ isNightTime, coordinates }: QiblaCompassProps) =>
   const [showCalibrationSuccess, setShowCalibrationSuccess] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
   const compassRef = useRef<HTMLDivElement>(null);
+  const orientationHandlerRef = useRef<((event: DeviceOrientationEvent) => void) | null>(null);
 
   useEffect(() => {
     if (!coordinates) return;
@@ -39,20 +40,31 @@ export const QiblaCompass = ({ isNightTime, coordinates }: QiblaCompassProps) =>
     };
 
     checkDeviceSupport();
+
+    return () => {
+      if (orientationHandlerRef.current) {
+        window.removeEventListener('deviceorientation', orientationHandlerRef.current);
+      }
+    };
   }, [coordinates]);
 
   useEffect(() => {
     if (permission !== 'granted') return;
 
-    const handleOrientation = (event: DeviceOrientationEvent) => {
+    orientationHandlerRef.current = (event: DeviceOrientationEvent) => {
       if (!event.alpha) return;
 
       const calibratedDirection = (event.alpha - calibrationOffset + 360) % 360;
       setDirection(calibratedDirection);
     };
 
-    window.addEventListener('deviceorientation', handleOrientation);
-    return () => window.removeEventListener('deviceorientation', handleOrientation);
+    window.addEventListener('deviceorientation', orientationHandlerRef.current);
+    
+    return () => {
+      if (orientationHandlerRef.current) {
+        window.removeEventListener('deviceorientation', orientationHandlerRef.current);
+      }
+    };
   }, [permission, calibrationOffset]);
 
   const requestPermission = async () => {
@@ -87,7 +99,8 @@ export const QiblaCompass = ({ isNightTime, coordinates }: QiblaCompassProps) =>
     setIsCalibrating(false);
     setShowCalibrationSuccess(true);
     
-    setTimeout(() => setShowCalibrationSuccess(false), 2000);
+    const timeoutId = setTimeout(() => setShowCalibrationSuccess(false), 2000);
+    return () => clearTimeout(timeoutId);
   };
 
   const CompassContent = () => {
@@ -237,6 +250,7 @@ export const QiblaCompass = ({ isNightTime, coordinates }: QiblaCompassProps) =>
             <button
               onClick={() => setIsOpen(false)}
               className="absolute top-4 right-4 p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+              aria-label="Tutup Kompas"
             >
               <X className="w-5 h-5" />
             </button>
