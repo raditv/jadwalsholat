@@ -1,5 +1,6 @@
 import React from 'react';
 import { format } from 'date-fns';
+import { Calendar } from 'lucide-react';
 
 interface HijriDateDisplayProps {
   isNightTime: boolean;
@@ -41,16 +42,12 @@ export function HijriDateDisplay({ isNightTime }: HijriDateDisplayProps) {
   };
   
   return (
-    <div className={`text-center mb-16 ${isNightTime ? 'text-gray-300' : 'text-gray-800'}`}>
-      <div className={`p-8 rounded-2xl backdrop-blur-sm shadow-xl ${
-        isNightTime ? 'bg-gray-800/50' : 'bg-white/80'
-      }`}>
-        <div className="text-5xl font-bold mb-2 bg-clip-text text-transparent bg-gradient-to-r from-emerald-500 to-blue-500">
-          {getHijriDate()}
-        </div>
-        <div className="text-xl opacity-90">
-          {format(today, 'EEEE, d MMMM yyyy')}
-        </div>
+    <div className={`text-center mb-6 ${isNightTime ? 'text-gray-300' : 'text-gray-800'}`}>
+      <div className="text-3xl font-bold mb-1">
+        {getHijriDate()}
+      </div>
+      <div className="text-xs opacity-80">
+        {format(today, 'EEEE, d MMMM yyyy')}
       </div>
     </div>
   );

@@ -9,30 +9,28 @@ interface TabsProps {
 
 export function Tabs({ activeTab, onTabChange, isNightTime }: TabsProps) {
   return (
-    <div className={`flex space-x-2 mb-12 p-1 rounded-full backdrop-blur-sm shadow-lg ${
-      isNightTime ? 'bg-gray-800/50' : 'bg-white/80'
-    }`}>
+    <div className="flex space-x-1 mb-8 p-1 rounded-lg bg-white/10 backdrop-blur-sm">
       <button
         onClick={() => onTabChange('times')}
-        className={`flex-1 flex items-center justify-center p-4 rounded-full transition-all duration-300 ${
+        className={`flex-1 flex items-center justify-center gap-2 px-4 py-2 rounded-md transition-colors ${
           activeTab === 'times'
-            ? 'bg-emerald-600 text-white shadow-lg'
-            : `${isNightTime ? 'text-gray-300 hover:text-white' : 'text-gray-600 hover:text-gray-900'} hover:bg-gray-100/10`
+            ? 'bg-emerald-600 text-white'
+            : `${isNightTime ? 'text-gray-300' : 'text-gray-600'} hover:bg-gray-100/10`
         }`}
-        aria-label="Today's Prayer Times"
       >
-        <Clock className="w-6 h-6" />
+        <Clock className="w-4 h-4" />
+        <span>Today</span>
       </button>
       <button
         onClick={() => onTabChange('schedule')}
-        className={`flex-1 flex items-center justify-center p-4 rounded-full transition-all duration-300 ${
+        className={`flex-1 flex items-center justify-center gap-2 px-4 py-2 rounded-md transition-colors ${
           activeTab === 'schedule'
-            ? 'bg-emerald-600 text-white shadow-lg'
-            : `${isNightTime ? 'text-gray-300 hover:text-white' : 'text-gray-600 hover:text-gray-900'} hover:bg-gray-100/10`
+            ? 'bg-emerald-600 text-white'
+            : `${isNightTime ? 'text-gray-300' : 'text-gray-600'} hover:bg-gray-100/10`
         }`}
-        aria-label="Prayer Schedule"
       >
-        <Calendar className="w-6 h-6" />
+        <Calendar className="w-4 h-4" />
+        <span>Schedule</span>
       </button>
     </div>
   );

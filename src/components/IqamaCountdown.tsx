@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { Timer } from 'lucide-react';
-import { ProgressBar } from './ProgressBar';
 
 interface IqamaCountdownProps {
   iqamaTime: Date;
@@ -9,7 +8,6 @@ interface IqamaCountdownProps {
 
 export function IqamaCountdown({ iqamaTime, isNightTime }: IqamaCountdownProps) {
   const [timeLeft, setTimeLeft] = useState<string>('');
-  const [progress, setProgress] = useState(0);
   const [isActive, setIsActive] = useState(false);
 
   useEffect(() => {
@@ -26,11 +24,6 @@ export function IqamaCountdown({ iqamaTime, isNightTime }: IqamaCountdownProps) 
       const hours = Math.floor(diff / (1000 * 60 * 60));
       const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
       const seconds = Math.floor((diff % (1000 * 60)) / 1000);
-
-      // Calculate progress
-      const totalDuration = 15 * 60 * 1000; // 15 minutes in milliseconds
-      const elapsed = totalDuration - diff;
-      setProgress(Math.min(100, (elapsed / totalDuration) * 100));
 
       return `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
     };
@@ -64,25 +57,22 @@ export function IqamaCountdown({ iqamaTime, isNightTime }: IqamaCountdownProps) 
   }
 
   return (
-    <div className={`p-8 rounded-2xl backdrop-blur-sm shadow-xl ${
+    <div className={`text-center p-6 rounded-lg ${
       isNightTime ? 'bg-gray-800/50' : 'bg-white/80'
-    }`}>
-      <div className="flex items-center justify-center gap-3 mb-6">
-        <Timer className="w-8 h-8 text-emerald-400 animate-pulse" />
-        <h2 className={`text-2xl font-medium ${
+    } backdrop-blur-sm shadow-lg mb-8`}>
+      <div className="flex items-center justify-center gap-2 mb-2">
+        <Timer className="w-6 h-6 text-emerald-500" />
+        <h2 className={`text-xl font-medium ${
           isNightTime ? 'text-white' : 'text-gray-900'
         }`}>
           Time Until Iqama
         </h2>
       </div>
-      <div className="text-5xl font-bold text-center mb-4 bg-clip-text text-transparent bg-gradient-to-r from-emerald-500 to-blue-500">
+      <div className={`text-4xl font-bold ${
+        isNightTime ? 'text-emerald-400' : 'text-emerald-600'
+      }`}>
         {timeLeft}
       </div>
-      <ProgressBar 
-        progress={progress}
-        color="bg-gradient-to-r from-emerald-500 to-blue-500"
-        isNightTime={isNightTime}
-      />
     </div>
   );
 }

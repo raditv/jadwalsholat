@@ -1,5 +1,5 @@
 import React from 'react';
-import { X, Clock, Bell, Minus, Plus, Settings2 } from 'lucide-react';
+import { X, Volume2, Clock, Bell, Minus, Plus, Settings2 } from 'lucide-react';
 import { CalculationMethod, AsrCalculation, TimeAdjustments } from '../types';
 
 interface SettingsPanelProps {
@@ -18,7 +18,6 @@ interface SettingsPanelProps {
 }
 
 const CALCULATION_METHODS: { value: CalculationMethod; label: string }[] = [
-  { value: 'KemenagRI', label: 'Kemenag RI (Indonesia)' },
   { value: 'MuslimWorldLeague', label: 'Muslim World League' },
   { value: 'Egyptian', label: 'Egyptian General Authority' },
   { value: 'Karachi', label: 'University of Islamic Sciences, Karachi' },
@@ -29,6 +28,7 @@ const CALCULATION_METHODS: { value: CalculationMethod; label: string }[] = [
   { value: 'Kuwait', label: 'Kuwait' },
   { value: 'Qatar', label: 'Qatar' },
   { value: 'Singapore', label: 'Singapore' },
+  { value: 'KemenagRI', label: 'Kemenag RI' },
 ];
 
 const ASR_CALCULATIONS: { value: AsrCalculation; label: string }[] = [
@@ -108,6 +108,7 @@ export function SettingsPanel({
                   className="w-full px-3 py-2 rounded-lg border border-gray-200 bg-white text-gray-900 text-sm
                     focus:border-emerald-500 focus:ring focus:ring-emerald-200 focus:ring-opacity-50
                     hover:border-gray-300 transition-colors cursor-pointer"
+                  aria-label="Calculation Method"
                 >
                   {CALCULATION_METHODS.map((method) => (
                     <option key={method.value} value={method.value}>
@@ -129,6 +130,7 @@ export function SettingsPanel({
                   className="w-full px-3 py-2 rounded-lg border border-gray-200 bg-white text-gray-900 text-sm
                     focus:border-emerald-500 focus:ring focus:ring-emerald-200 focus:ring-opacity-50
                     hover:border-gray-300 transition-colors cursor-pointer"
+                  aria-label="Asr Calculation Method"
                 >
                   {ASR_CALCULATIONS.map((method) => (
                     <option key={method.value} value={method.value}>
@@ -153,6 +155,7 @@ export function SettingsPanel({
                           onClick={() => handleTimeDecrement(prayer)}
                           className="w-8 h-8 flex items-center justify-center rounded-full bg-emerald-100 text-emerald-700
                             hover:bg-emerald-200 transition-colors"
+                          aria-label={`Decrease ${prayer} time adjustment`}
                         >
                           <Minus className="w-4 h-4" />
                         </button>
@@ -163,6 +166,7 @@ export function SettingsPanel({
                           onClick={() => handleTimeIncrement(prayer)}
                           className="w-8 h-8 flex items-center justify-center rounded-full bg-emerald-100 text-emerald-700
                             hover:bg-emerald-200 transition-colors"
+                          aria-label={`Increase ${prayer} time adjustment`}
                         >
                           <Plus className="w-4 h-4" />
                         </button>
@@ -187,6 +191,7 @@ export function SettingsPanel({
                           onClick={() => handleIqamaDecrement(prayer)}
                           className="w-8 h-8 flex items-center justify-center rounded-full bg-emerald-100 text-emerald-700
                             hover:bg-emerald-200 transition-colors"
+                          aria-label={`Decrease ${prayer} iqama delay`}
                         >
                           <Minus className="w-4 h-4" />
                         </button>
@@ -197,6 +202,7 @@ export function SettingsPanel({
                           onClick={() => handleIqamaIncrement(prayer)}
                           className="w-8 h-8 flex items-center justify-center rounded-full bg-emerald-100 text-emerald-700
                             hover:bg-emerald-200 transition-colors"
+                          aria-label={`Increase ${prayer} iqama delay`}
                         >
                           <Plus className="w-4 h-4" />
                         </button>
@@ -217,6 +223,7 @@ export function SettingsPanel({
                   className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 ${
                     notificationsEnabled ? 'bg-emerald-600' : 'bg-gray-200'
                   }`}
+                  aria-label={`${notificationsEnabled ? 'Disable' : 'Enable'} prayer notifications`}
                 >
                   <span
                     className={`inline-block h-4 w-4 transform rounded-full bg-white shadow-sm transition-transform ${

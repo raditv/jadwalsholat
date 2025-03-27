@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Utensils, Coffee, Moon } from 'lucide-react';
 import { getTimeUntilIfter, getTimeUntilSuhoorEnd, isSuhoorTime } from '../utils/ramadan';
-import { ProgressBar } from './ProgressBar';
 
 interface RamadanCountdownProps {
   maghribTime: Date;
@@ -11,8 +10,8 @@ interface RamadanCountdownProps {
 
 export function RamadanCountdown({ maghribTime, fajrTime, isNightTime }: RamadanCountdownProps) {
   const [timeLeft, setTimeLeft] = useState('');
-  const [progress, setProgress] = useState(0);
   const [isSuhoor, setIsSuhoor] = useState(false);
+  const [progress, setProgress] = useState(0);
 
   useEffect(() => {
     const updateCountdown = () => {
@@ -21,18 +20,21 @@ export function RamadanCountdown({ maghribTime, fajrTime, isNightTime }: Ramadan
       
       if (suhoorTime) {
         setTimeLeft(getTimeUntilSuhoorEnd(fajrTime));
-        // Calculate progress for suhoor
+        // Hitung progress untuk sahur
         const now = new Date();
-        const totalDuration = fajrTime.getTime() - maghribTime.getTime();
-        const elapsed = now.getTime() - maghribTime.getTime();
-        setProgress(Math.min(100, (elapsed / totalDuration) * 100));
+        const suhoorEnd = new Date(fajrTime);
+        const totalDuration = 24 * 60 * 60 * 1000; // 24 jam dalam milidetik
+        const elapsed = now.getTime() - new Date(maghribTime).getTime();
+        const progress = (elapsed / totalDuration) * 100;
+        setProgress(Math.min(progress, 100));
       } else {
         setTimeLeft(getTimeUntilIfter(maghribTime));
-        // Calculate progress for iftar
+        // Hitung progress untuk iftar
         const now = new Date();
-        const totalDuration = maghribTime.getTime() - fajrTime.getTime();
-        const elapsed = now.getTime() - fajrTime.getTime();
-        setProgress(Math.min(100, (elapsed / totalDuration) * 100));
+        const totalDuration = 24 * 60 * 60 * 1000; // 24 jam dalam milidetik
+        const elapsed = now.getTime() - new Date(fajrTime).getTime();
+        const progress = (elapsed / totalDuration) * 100;
+        setProgress(Math.min(progress, 100));
       }
     };
 
@@ -46,44 +48,47 @@ export function RamadanCountdown({ maghribTime, fajrTime, isNightTime }: Ramadan
   }, [maghribTime, fajrTime]);
 
   return (
-    <div className={`p-8 rounded-2xl backdrop-blur-sm shadow-xl ${
+    <div className={`text-center p-4 rounded-lg ${
       isNightTime ? 'bg-gray-800/50' : 'bg-white/80'
-    }`}>
-      <div className="flex items-center justify-center gap-4 mb-6">
+    } backdrop-blur-sm shadow-lg mb-4`}>
+      <div className="flex items-center justify-center gap-3 mb-2">
         {isSuhoor ? (
           <>
-            <Moon className="w-8 h-8 text-purple-400 animate-pulse" />
-            <h2 className={`text-2xl font-medium ${
+            <Moon className="w-5 h-5 text-purple-500" />
+            <h2 className={`text-base font-medium ${
               isNightTime ? 'text-white' : 'text-gray-900'
             }`}>
               Time Until End of Suhoor
             </h2>
-            <Coffee className="w-8 h-8 text-purple-400 animate-pulse" />
+            <Coffee className="w-5 h-5 text-purple-500" />
           </>
         ) : (
           <>
-            <Coffee className="w-8 h-8 text-amber-400 animate-pulse" />
-            <h2 className={`text-2xl font-medium ${
+            <Coffee className="w-5 h-5 text-amber-500" />
+            <h2 className={`text-base font-medium ${
               isNightTime ? 'text-white' : 'text-gray-900'
             }`}>
               Time Until Iftar
             </h2>
-            <Utensils className="w-8 h-8 text-amber-400 animate-pulse" />
+            <Utensils className="w-5 h-5 text-amber-500" />
           </>
         )}
       </div>
-      <div className={`text-5xl font-bold text-center mb-4 bg-clip-text text-transparent bg-gradient-to-r ${
+      <div className={`text-3xl font-bold mb-2 ${
         isSuhoor
-          ? isNightTime ? 'from-purple-400 to-blue-400' : 'from-purple-600 to-blue-600'
-          : isNightTime ? 'from-amber-400 to-orange-400' : 'from-amber-600 to-orange-600'
+          ? isNightTime ? 'text-purple-400' : 'text-purple-600'
+          : isNightTime ? 'text-amber-400' : 'text-amber-600'
       }`}>
         {timeLeft}
       </div>
-      <ProgressBar 
-        progress={progress}
-        color={isSuhoor ? 'bg-gradient-to-r from-purple-400 to-blue-400' : 'bg-gradient-to-r from-amber-400 to-orange-400'}
-        isNightTime={isNightTime}
-      />
+      <div className="w-full bg-gray-200 rounded-full h-2">
+        <div 
+          className={`h-2 rounded-full transition-all duration-1000 ${
+            isSuhoor ? 'bg-purple-500' : 'bg-amber-500'
+          }`}
+          style={{ width: `${progress}%` }}
+        />
+      </div>
     </div>
   );
 }

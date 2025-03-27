@@ -3,12 +3,6 @@ import { CalculationMethod as AdhanMethod, Coordinates as AdhanCoordinates, Pray
 
 export function getCalculationMethod(method: CalculationMethod): any {
   switch (method) {
-    case 'KemenagRI':
-      const kemenagMethod = AdhanMethod.MuslimWorldLeague();
-      // Kemenag RI menggunakan Muslim World League dengan parameter khusus
-      kemenagMethod.fajrAngle = 20;  // Sudut Fajr 20°
-      kemenagMethod.ishaAngle = 18;  // Sudut Isha 18°
-      return kemenagMethod;
     case 'MuslimWorldLeague':
       return AdhanMethod.MuslimWorldLeague();
     case 'Egyptian':
@@ -29,6 +23,13 @@ export function getCalculationMethod(method: CalculationMethod): any {
       return AdhanMethod.Qatar();
     case 'Singapore':
       return AdhanMethod.Singapore();
+    case 'KemenagRI':
+      // Kemenag RI menggunakan parameter khusus
+      const params = AdhanMethod.MuslimWorldLeague();
+      params.fajrAngle = 20; // Sudut fajr Kemenag RI
+      params.ishaAngle = 18; // Sudut isha Kemenag RI
+      params.maghribAngle = 0; // Sudut maghrib Kemenag RI
+      return params;
     default:
       return AdhanMethod.MuslimWorldLeague();
   }
@@ -43,7 +44,7 @@ export function calculatePrayerTimes(
     sunrise: 0,
     dhuhr: 0,
     asr: 0,
-    maghrib: 0,
+    maghrib: method === 'KemenagRI' ? 2 : 0, // Penyesuaian maghrib 2 menit untuk Kemenag RI
     isha: 0
   },
   date: Date = new Date()
