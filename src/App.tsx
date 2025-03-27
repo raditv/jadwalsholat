@@ -146,13 +146,13 @@ function App() {
         setPrayerTimes(times);
         
         // Update next prayer and current prayer every second
-        const interval = setInterval(() => {
+        const intervalId = setInterval(() => {
           const next = getNextPrayer(times, settings.iqamaAdjustments);
           setNextPrayer(next);
           setCurrentPrayer(getCurrentPrayer(times));
         }, 1000);
 
-        return () => clearInterval(interval);
+        return () => clearInterval(intervalId);
       } catch (error) {
         console.error('Error calculating prayer times:', error);
       }
@@ -193,13 +193,19 @@ function App() {
 
   // Handle notification permission and scheduling
   useEffect(() => {
+    let mounted = true;
+
     if (settings.notificationsEnabled) {
       requestNotificationPermission().then(granted => {
-        if (!granted) {
+        if (!granted && mounted) {
           updateSettings({ notificationsEnabled: false });
         }
       });
     }
+
+    return () => {
+      mounted = false;
+    };
   }, [settings.notificationsEnabled]);
 
   // Schedule notifications when prayer times change

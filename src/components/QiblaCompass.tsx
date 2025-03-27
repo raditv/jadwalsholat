@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { Compass, AlertCircle, RotateCcw, CheckCircle2, X } from 'lucide-react';
 import { calculateQiblaDirection } from '../utils/qibla';
 
@@ -18,6 +18,14 @@ export const QiblaCompass = ({ isNightTime, coordinates }: QiblaCompassProps) =>
   const [isOpen, setIsOpen] = useState(false);
   const compassRef = useRef<HTMLDivElement>(null);
   const orientationHandlerRef = useRef<((event: DeviceOrientationEvent) => void) | null>(null);
+  const timeoutRef = useRef<NodeJS.Timeout>();
+
+  const handleOrientation = useCallback((event: DeviceOrientationEvent) => {
+    if (!event.alpha) return;
+
+    const calibratedDirection = (event.alpha - calibrationOffset + 360) % 360;
+    setDirection(calibratedDirection);
+  }, [calibrationOffset]);
 
   useEffect(() => {
     if (!coordinates) return;
@@ -45,29 +53,24 @@ export const QiblaCompass = ({ isNightTime, coordinates }: QiblaCompassProps) =>
       if (orientationHandlerRef.current) {
         window.removeEventListener('deviceorientation', orientationHandlerRef.current);
       }
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+      }
     };
   }, [coordinates]);
 
   useEffect(() => {
     if (permission !== 'granted') return;
 
-    orientationHandlerRef.current = (event: DeviceOrientationEvent) => {
-      if (!event.alpha) return;
-
-      const calibratedDirection = (event.alpha - calibrationOffset + 360) % 360;
-      setDirection(calibratedDirection);
-    };
-
-    window.addEventListener('deviceorientation', orientationHandlerRef.current);
+    orientationHandlerRef.current = handleOrientation;
+    window.addEventListener('deviceorientation', handleOrientation);
     
     return () => {
-      if (orientationHandlerRef.current) {
-        window.removeEventListener('deviceorientation', orientationHandlerRef.current);
-      }
+      window.removeEventListener('deviceorientation', handleOrientation);
     };
-  }, [permission, calibrationOffset]);
+  }, [permission, handleOrientation]);
 
-  const requestPermission = async () => {
+  const requestPermission = useCallback(async () => {
     try {
       const permission = await (DeviceOrientationEvent as any).requestPermission();
       if (permission === 'granted') {
@@ -81,14 +84,14 @@ export const QiblaCompass = ({ isNightTime, coordinates }: QiblaCompassProps) =>
       setPermission('denied');
       setError('Gagal mendapatkan izin akses sensor');
     }
-  };
+  }, []);
 
-  const startCalibration = () => {
+  const startCalibration = useCallback(() => {
     setIsCalibrating(true);
     setShowCalibrationSuccess(false);
-  };
+  }, []);
 
-  const finishCalibration = () => {
+  const finishCalibration = useCallback(() => {
     if (!compassRef.current) return;
     
     const transform = window.getComputedStyle(compassRef.current).transform;
@@ -99,11 +102,13 @@ export const QiblaCompass = ({ isNightTime, coordinates }: QiblaCompassProps) =>
     setIsCalibrating(false);
     setShowCalibrationSuccess(true);
     
-    const timeoutId = setTimeout(() => setShowCalibrationSuccess(false), 2000);
-    return () => clearTimeout(timeoutId);
-  };
+    if (timeoutRef.current) {
+      clearTimeout(timeoutRef.current);
+    }
+    timeoutRef.current = setTimeout(() => setShowCalibrationSuccess(false), 2000);
+  }, []);
 
-  const CompassContent = () => {
+  const CompassContent = useCallback(() => {
     if (error) {
       return (
         <div className="flex items-center gap-3 text-red-500 mb-4">
@@ -224,7 +229,7 @@ export const QiblaCompass = ({ isNightTime, coordinates }: QiblaCompassProps) =>
         </div>
       </>
     );
-  };
+  }, [error, showPermissionRequest, isCalibrating, direction, requestPermission, startCalibration, finishCalibration]);
 
   return (
     <>

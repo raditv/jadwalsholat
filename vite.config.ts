@@ -131,9 +131,5 @@ export default defineConfig({
   ],
   optimizeDeps: {
     exclude: ['lucide-react'],
-  },
-  server: {
-    host: true,
-    allowedHosts: ['radit.tun.arkana.app']
   }
 });
