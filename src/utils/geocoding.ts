@@ -1,57 +1,78 @@
-export async function getCityName(latitude: number, longitude: number): Promise<string> {
+const CACHE_DURATION = 24 * 60 * 60 * 1000; // 24 jam dalam milliseconds
+const RATE_LIMIT_DELAY = 1000; // 1 detik delay antara request
+
+interface GeocodingCache {
+  cityName: string;
+  timestamp: number;
+}
+
+let lastRequestTime = 0;
+
+async function delay(ms: number) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+export async function getCityName(latitude: number, longitude: number): Promise<string | null> {
   try {
+    // Cek cache terlebih dahulu
+    const cacheKey = `cityName_${latitude}_${longitude}`;
+    const cachedData = localStorage.getItem(cacheKey);
+    
+    if (cachedData) {
+      const cache: GeocodingCache = JSON.parse(cachedData);
+      if (Date.now() - cache.timestamp < CACHE_DURATION) {
+        return cache.cityName;
+      }
+    }
+
+    // Rate limiting
+    const now = Date.now();
+    const timeSinceLastRequest = now - lastRequestTime;
+    if (timeSinceLastRequest < RATE_LIMIT_DELAY) {
+      await delay(RATE_LIMIT_DELAY - timeSinceLastRequest);
+    }
+    lastRequestTime = Date.now();
+
+    // Fetch dari OpenStreetMap Nominatim
     const response = await fetch(
       `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}&zoom=10`,
       {
         headers: {
-          'User-Agent': 'Prayer Times App (https://github.com/your-repo)', // Required by Nominatim's terms of use
-          'Accept-Language': 'en' // Request English results
+          'User-Agent': 'PrayerTimesApp/1.0',
+          'Accept-Language': 'en'
         }
       }
     );
-    
+
     if (!response.ok) {
-      console.error(`HTTP error! status: ${response.status}`);
-      return 'Unknown Location';
+      return null; // Return null jika ada error HTTP
     }
-    
+
     const data = await response.json();
     
     if (!data || !data.address) {
-      console.warn('No address data received from geocoding service');
-      return 'Unknown Location';
+      return null; // Return null jika tidak ada data
     }
 
-    // Try to get the most specific location name available
-    const locationName = data.address.city || 
-                        data.address.town || 
-                        data.address.village || 
-                        data.address.suburb ||
-                        data.address.county ||
-                        data.address.state ||
-                        'Unknown Location';
+    // Ambil nama kota dari hasil geocoding
+    const cityName = data.address.city || 
+                     data.address.town || 
+                     data.address.village || 
+                     data.address.suburb ||
+                     data.address.county ||
+                     data.address.state ||
+                     'Unknown Location';
 
-    // Cache the result for future use
-    try {
-      localStorage.setItem(`cityName_${latitude}_${longitude}`, locationName);
-    } catch (e) {
-      console.warn('Failed to cache city name:', e);
-    }
+    // Simpan ke cache
+    const cache: GeocodingCache = {
+      cityName,
+      timestamp: Date.now()
+    };
+    localStorage.setItem(cacheKey, JSON.stringify(cache));
 
-    return locationName;
+    return cityName;
   } catch (error) {
     console.error('Error fetching city name:', error);
-    
-    // Try to get cached value if available
-    try {
-      const cachedName = localStorage.getItem(`cityName_${latitude}_${longitude}`);
-      if (cachedName) {
-        return cachedName;
-      }
-    } catch (e) {
-      console.warn('Failed to retrieve cached city name:', e);
-    }
-    
-    return 'Unknown Location';
+    return null; // Return null jika ada error
   }
 }
