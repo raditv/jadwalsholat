@@ -1,0 +1,19 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply antialiased text-gray-900 bg-gray-50;
+  }
+}
+
+@layer components {
+  .prayer-card {
+    @apply rounded-lg p-6 bg-white shadow-md transition-all duration-300 hover:shadow-lg;
+  }
+  
+  .prayer-card-active {
+    @apply bg-emerald-600 text-white shadow-lg scale-105;
+  }
+}

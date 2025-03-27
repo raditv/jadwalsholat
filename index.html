@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/masked-icon.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#059669" />
+    <link rel="apple-touch-icon" href="/pwa-192x192.png" />
+    <link rel="mask-icon" href="/masked-icon.svg" color="#059669" />
+    
+    <!-- Primary Meta Tags -->
+    <title>Prayer Times - Islamic Prayer Times & Qibla Direction</title>
+    <meta name="title" content="Prayer Times - Islamic Prayer Times & Qibla Direction" />
+    <meta name="description" content="Accurate Islamic prayer times for your location. Get Fajr, Dhuhr, Asr, Maghrib, Isha times, Qibla direction, and Ramadan schedule. Multiple calculation methods available." />
+    <meta name="keywords" content="prayer times, islamic prayer times, salah times, namaz times, muslim prayer schedule, fajr time, dhuhr time, asr time, maghrib time, isha time, qibla direction, ramadan schedule, prayer app, muslim app, islamic app, adhan times, iqama times" />
+    
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://sholat.arkana.co.id/" />
+    <meta property="og:title" content="Prayer Times - Islamic Prayer Times & Qibla Direction" />
+    <meta property="og:description" content="Accurate Islamic prayer times for your location. Get Fajr, Dhuhr, Asr, Maghrib, Isha times, Qibla direction, and Ramadan schedule. Multiple calculation methods available." />
+    <meta property="og:image" content="https://sholat.arkana.co.id/pwa-512x512.png" />
+    
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image" />
+    <meta property="twitter:url" content="https://sholat.arkana.co.id/" />
+    <meta property="twitter:title" content="Prayer Times - Islamic Prayer Times & Qibla Direction" />
+    <meta property="twitter:description" content="Accurate Islamic prayer times for your location. Get Fajr, Dhuhr, Asr, Maghrib, Isha times, Qibla direction, and Ramadan schedule. Multiple calculation methods available." />
+    <meta property="twitter:image" content="https://sholat.arkana.co.id/pwa-512x512.png" />
+    
+    <!-- Additional SEO Meta Tags -->
+    <meta name="author" content="Prayer Times App" />
+    <meta name="robots" content="index, follow" />
+    <meta name="googlebot" content="index, follow" />
+    <meta name="google" content="notranslate" />
+    <link rel="canonical" href="https://sholat.arkana.co.id/" />
+    
+    <!-- Mobile App Meta Tags -->
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="Prayer Times" />
+    
+    <!-- Schema.org markup for Google+ -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebApplication",
+      "name": "Prayer Times",
+      "description": "Accurate Islamic prayer times for your location. Get Fajr, Dhuhr, Asr, Maghrib, Isha times, Qibla direction, and Ramadan schedule.",
+      "applicationCategory": "ReligiousApplication",
+      "operatingSystem": "All",
+      "offers": {
+        "@type": "Offer",
+        "price": "0",
+        "priceCurrency": "USD"
+      },
+      "featureList": [
+        "Accurate prayer times",
+        "Multiple calculation methods",
+        "Qibla direction",
+        "Ramadan schedule",
+        "Iqama times",
+        "Location-based",
+        "Offline support",
+        "PWA support"
+      ]
+    }
+    </script>
+    <script>
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+          navigator.serviceWorker.register('/service-worker.js')
+            .then(registration => {
+              console.log('ServiceWorker registration successful');
+            })
+            .catch(err => {
+              console.log('ServiceWorker registration failed: ', err);
+            });
+        });
+      }
+    </script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>

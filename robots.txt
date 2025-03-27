@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://sholat.arkana.co.id/sitemap.xml
