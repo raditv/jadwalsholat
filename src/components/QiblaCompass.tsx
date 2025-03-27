@@ -18,17 +18,25 @@ export const QiblaCompass = ({ isNightTime, coordinates }: QiblaCompassProps) =>
   const [isOpen, setIsOpen] = useState(false);
   const compassRef = useRef<HTMLDivElement>(null);
   const orientationHandlerRef = useRef<((event: DeviceOrientationEvent) => void) | null>(null);
-  const timeoutRef = useRef<NodeJS.Timeout>();
+  const timeoutRef = useRef<number>();
+  const isMountedRef = useRef(true);
+
+  useEffect(() => {
+    isMountedRef.current = true;
+    return () => {
+      isMountedRef.current = false;
+    };
+  }, []);
 
   const handleOrientation = useCallback((event: DeviceOrientationEvent) => {
-    if (!event.alpha) return;
+    if (!event.alpha || !isMountedRef.current) return;
 
     const calibratedDirection = (event.alpha - calibrationOffset + 360) % 360;
     setDirection(calibratedDirection);
   }, [calibrationOffset]);
 
   useEffect(() => {
-    if (!coordinates) return;
+    if (!coordinates || !isOpen) return;
 
     const qiblaDirection = calculateQiblaDirection(coordinates.latitude, coordinates.longitude);
     setDirection(qiblaDirection);
@@ -54,13 +62,13 @@ export const QiblaCompass = ({ isNightTime, coordinates }: QiblaCompassProps) =>
         window.removeEventListener('deviceorientation', orientationHandlerRef.current);
       }
       if (timeoutRef.current) {
-        clearTimeout(timeoutRef.current);
+        window.clearTimeout(timeoutRef.current);
       }
     };
-  }, [coordinates]);
+  }, [coordinates, isOpen]);
 
   useEffect(() => {
-    if (permission !== 'granted') return;
+    if (permission !== 'granted' || !isOpen) return;
 
     orientationHandlerRef.current = handleOrientation;
     window.addEventListener('deviceorientation', handleOrientation);
@@ -68,7 +76,7 @@ export const QiblaCompass = ({ isNightTime, coordinates }: QiblaCompassProps) =>
     return () => {
       window.removeEventListener('deviceorientation', handleOrientation);
     };
-  }, [permission, handleOrientation]);
+  }, [permission, handleOrientation, isOpen]);
 
   const requestPermission = useCallback(async () => {
     try {
@@ -103,9 +111,13 @@ export const QiblaCompass = ({ isNightTime, coordinates }: QiblaCompassProps) =>
     setShowCalibrationSuccess(true);
     
     if (timeoutRef.current) {
-      clearTimeout(timeoutRef.current);
+      window.clearTimeout(timeoutRef.current);
     }
-    timeoutRef.current = setTimeout(() => setShowCalibrationSuccess(false), 2000);
+    timeoutRef.current = window.setTimeout(() => {
+      if (isMountedRef.current) {
+        setShowCalibrationSuccess(false);
+      }
+    }, 2000);
   }, []);
 
   const CompassContent = useCallback(() => {
