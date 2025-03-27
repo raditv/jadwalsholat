@@ -17,3 +17,13 @@
     @apply bg-emerald-600 text-white shadow-lg scale-105;
   }
 }
+
+@layer utilities {
+  .drop-shadow-glow-emerald {
+    filter: drop-shadow(0 0 0.5rem rgb(52 211 153 / 0.3));
+  }
+  
+  .drop-shadow-glow-amber {
+    filter: drop-shadow(0 0 0.5rem rgb(251 191 36 / 0.3));
+  }
+}

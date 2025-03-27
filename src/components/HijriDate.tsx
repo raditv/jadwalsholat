@@ -43,11 +43,33 @@ export function HijriDateDisplay({ isNightTime }: HijriDateDisplayProps) {
   
   return (
     <div className={`text-center mb-6 ${isNightTime ? 'text-gray-300' : 'text-gray-800'}`}>
-      <div className="text-3xl font-bold mb-1">
-        {getHijriDate()}
-      </div>
-      <div className="text-xs opacity-80">
-        {format(today, 'EEEE, d MMMM yyyy')}
+      <div className="relative inline-block">
+        <div className={`
+          flex items-center justify-center gap-3 px-4 py-2 rounded-xl
+          ${isNightTime 
+            ? 'bg-gray-800/50 backdrop-blur-sm shadow-lg' 
+            : 'bg-white/80 backdrop-blur-sm shadow-md'
+          }
+          transition-all duration-300 hover:shadow-lg
+        `}>
+          <Calendar 
+            className={`w-5 h-5 ${
+              isNightTime 
+                ? 'text-emerald-400 drop-shadow-glow-emerald' 
+                : 'text-emerald-600 drop-shadow-glow-amber'
+            }`} 
+          />
+          <div>
+            <div className="text-lg font-serif tracking-wide">
+              {getHijriDate()}
+            </div>
+            <div className={`text-xs font-medium mt-0.5 ${
+              isNightTime ? 'text-gray-400' : 'text-gray-600'
+            }`}>
+              {format(today, 'EEEE, d MMMM yyyy')}
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );
