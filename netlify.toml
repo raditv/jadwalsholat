@@ -26,4 +26,8 @@
   minify = true
 
 [build.processing.images]
-  compress = true 
+  compress = true
+
+[[edge_functions]]
+  function = "geocode"
+  path = "/api/geocode" 

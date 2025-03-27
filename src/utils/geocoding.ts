@@ -1,25 +1,23 @@
 export async function getCityName(latitude: number, longitude: number): Promise<string> {
   try {
+    // Try to get cached value first
+    const cachedName = localStorage.getItem(`cityName_${latitude}_${longitude}`);
+    if (cachedName) {
+      return cachedName;
+    }
+
     const response = await fetch(
-      `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}&zoom=10`,
-      {
-        headers: {
-          'User-Agent': 'Prayer Times App (https://github.com/your-repo)', // Required by Nominatim's terms of use
-          'Accept-Language': 'en' // Request English results
-        }
-      }
+      `/api/geocode?lat=${latitude}&lon=${longitude}`
     );
     
     if (!response.ok) {
-      console.error(`HTTP error! status: ${response.status}`);
-      return 'Unknown Location';
+      throw new Error(`HTTP error! status: ${response.status}`);
     }
     
     const data = await response.json();
     
     if (!data || !data.address) {
-      console.warn('No address data received from geocoding service');
-      return 'Unknown Location';
+      throw new Error('No address data received');
     }
 
     // Try to get the most specific location name available
@@ -31,27 +29,19 @@ export async function getCityName(latitude: number, longitude: number): Promise<
                         data.address.state ||
                         'Unknown Location';
 
-    // Cache the result for future use
-    try {
-      localStorage.setItem(`cityName_${latitude}_${longitude}`, locationName);
-    } catch (e) {
-      console.warn('Failed to cache city name:', e);
-    }
-
+    // Cache the result
+    localStorage.setItem(`cityName_${latitude}_${longitude}`, locationName);
     return locationName;
   } catch (error) {
     console.error('Error fetching city name:', error);
     
-    // Try to get cached value if available
-    try {
-      const cachedName = localStorage.getItem(`cityName_${latitude}_${longitude}`);
-      if (cachedName) {
-        return cachedName;
-      }
-    } catch (e) {
-      console.warn('Failed to retrieve cached city name:', e);
+    // Return cached value if available
+    const cachedName = localStorage.getItem(`cityName_${latitude}_${longitude}`);
+    if (cachedName) {
+      return cachedName;
     }
-    
+
+    // Return default location name if everything fails
     return 'Unknown Location';
   }
 }

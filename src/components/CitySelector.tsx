@@ -35,8 +35,13 @@ export function CitySelector({ isOpen, onClose, onCitySelect }: CitySelectorProp
     setIsSearching(true);
     try {
       const response = await fetch(
-        `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(searchQuery)}`
+        `/api/geocode?q=${encodeURIComponent(searchQuery)}`
       );
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      
       const data = await response.json();
       
       const cities: City[] = data.map((item: any) => ({
@@ -49,6 +54,7 @@ export function CitySelector({ isOpen, onClose, onCitySelect }: CitySelectorProp
       setSearchResults(cities);
     } catch (error) {
       console.error('Error searching for cities:', error);
+      alert('Gagal mencari kota. Silakan coba lagi.');
     } finally {
       setIsSearching(false);
     }
@@ -118,6 +124,7 @@ export function CitySelector({ isOpen, onClose, onCitySelect }: CitySelectorProp
                 onClick={handleSearch}
                 disabled={isSearching}
                 className="px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 disabled:opacity-50"
+                aria-label="Cari kota"
               >
                 <Search className="w-5 h-5" />
               </button>
