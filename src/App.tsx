@@ -7,7 +7,7 @@ import { calculatePrayerTimes, getNextPrayer, getCurrentPrayer } from './utils/p
 import { getCityName } from './utils/geocoding';
 import { Tabs } from './components/Tabs';
 import { IqamaCountdown } from './components/IqamaCountdown';
-import { format, addDays } from 'date-fns';
+import { format, addDays, isSameMinute } from 'date-fns';
 import { CitySelector } from './components/CitySelector';
 import { RamadanCountdown } from './components/RamadanCountdown';
 import { isRamadan } from './utils/ramadan';
@@ -168,6 +168,55 @@ function App() {
         return null;
     }
   };
+
+  // Request notification permission
+  useEffect(() => {
+    if (settings.notificationsEnabled) {
+      if ('Notification' in window) {
+        Notification.requestPermission().then(permission => {
+          if (permission !== 'granted') {
+            updateSettings({ notificationsEnabled: false });
+          }
+        });
+      }
+    }
+  }, [settings.notificationsEnabled]);
+
+  // Handle prayer time notifications
+  useEffect(() => {
+    if (!settings.notificationsEnabled || !prayerTimes) return;
+
+    const checkPrayerTimes = () => {
+      const now = new Date();
+      Object.entries(prayerTimes).forEach(([name, time]) => {
+        // Check for adhan time
+        if (isSameMinute(now, time)) {
+          new Notification(`${name} Prayer Time`, {
+            body: `It's time for ${name} prayer`,
+            icon: '/pwa-192x192.png',
+            badge: '/pwa-192x192.png',
+            tag: `prayer-${name}-${time.getTime()}`,
+            requireInteraction: true
+          });
+        }
+
+        // Check for iqama time
+        const iqamaTime = new Date(time.getTime() + (settings.iqamaAdjustments[name] || 0) * 60000);
+        if (isSameMinute(now, iqamaTime)) {
+          new Notification(`${name} Iqama Time`, {
+            body: `It's time for ${name} iqama`,
+            icon: '/pwa-192x192.png',
+            badge: '/pwa-192x192.png',
+            tag: `iqama-${name}-${iqamaTime.getTime()}`,
+            requireInteraction: true
+          });
+        }
+      });
+    };
+
+    const interval = setInterval(checkPrayerTimes, 60000); // Check every minute
+    return () => clearInterval(interval);
+  }, [settings.notificationsEnabled, prayerTimes, settings.iqamaAdjustments]);
 
   return (
     <div className={`min-h-screen transition-colors duration-500 ${isNightTime() ? 'bg-gray-900' : 'bg-gradient-to-br from-blue-50 to-emerald-50'}`}>

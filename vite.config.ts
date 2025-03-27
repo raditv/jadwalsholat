@@ -104,7 +104,7 @@ export default defineConfig({
             }
           },
           {
-            urlPattern: /^https:\/\/api\.example\.com\/.*/i,
+            urlPattern: /^https:\/\/sholat\.arkana\.co\.id\/.*/i,
             handler: 'NetworkFirst',
             options: {
               cacheName: 'api-cache',
