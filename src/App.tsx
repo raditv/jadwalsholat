@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { PrayerTimes, Coordinates, CalculationMethod, AsrCalculation, TimeAdjustments } from './types';
 import { HijriDateDisplay } from './components/HijriDate';
-import { Settings, MapPin, Moon, Sun, Sunrise, Coffee, Sun as SunIcon, Cloud, Sunset, Moon as MoonIcon, Clock } from 'lucide-react';
+import { Settings, MapPin, Moon, Sun, Sunrise, Coffee, Sun as SunIcon, Cloud, Sunset, Moon as MoonIcon, Clock, Bell } from 'lucide-react';
 import { SettingsPanel } from './components/SettingsPanel';
 import { calculatePrayerTimes, getNextPrayer, getCurrentPrayer } from './utils/prayerTimes';
 import { getCityName } from './utils/geocoding';
@@ -169,16 +169,62 @@ function App() {
     }
   };
 
+  // Check if notifications are supported
+  const isNotificationSupported = () => {
+    return 'Notification' in window && 'serviceWorker' in navigator && 'PushManager' in window;
+  };
+
   // Request notification permission
+  const requestNotificationPermission = async () => {
+    if (!isNotificationSupported()) {
+      updateSettings({ notificationsEnabled: false });
+      alert('Notifikasi tidak didukung di browser ini');
+      return;
+    }
+
+    try {
+      const permission = await Notification.requestPermission();
+      if (permission !== 'granted') {
+        updateSettings({ notificationsEnabled: false });
+        alert('Izin notifikasi ditolak. Silakan aktifkan notifikasi di pengaturan browser Anda.');
+      }
+    } catch (error) {
+      console.error('Error requesting notification permission:', error);
+      updateSettings({ notificationsEnabled: false });
+    }
+  };
+
+  // Send notification with vibration
+  const sendNotification = (title: string, body: string, tag: string) => {
+    if (!isNotificationSupported() || Notification.permission !== 'granted') return;
+
+    try {
+      // Vibration pattern: 500ms vibrate, 200ms pause, 500ms vibrate
+      if ('vibrate' in navigator) {
+        navigator.vibrate([500, 200, 500]);
+      }
+
+      const notification = new Notification(title, {
+        body,
+        icon: '/pwa-192x192.png',
+        badge: '/pwa-192x192.png',
+        tag,
+        requireInteraction: true
+      });
+
+      notification.onclick = () => {
+        window.focus();
+        notification.close();
+      };
+    } catch (error) {
+      console.error('Error sending notification:', error);
+    }
+  };
+
+  // Request permission when notifications are enabled
   useEffect(() => {
     if (settings.notificationsEnabled) {
-      if ('Notification' in window) {
-        Notification.requestPermission().then(permission => {
-          if (permission !== 'granted') {
-            updateSettings({ notificationsEnabled: false });
-          }
-        });
-      }
+      requestNotificationPermission();
     }
   }, [settings.notificationsEnabled]);
 
@@ -189,27 +235,36 @@ function App() {
     const checkPrayerTimes = () => {
       const now = new Date();
       Object.entries(prayerTimes).forEach(([name, time]) => {
+        // Skip sunrise notifications
+        if (name.toLowerCase() === 'sunrise') return;
+
         // Check for adhan time
         if (isSameMinute(now, time)) {
-          new Notification(`${name} Prayer Time`, {
-            body: `It's time for ${name} prayer`,
-            icon: '/pwa-192x192.png',
-            badge: '/pwa-192x192.png',
-            tag: `prayer-${name}-${time.getTime()}`,
-            requireInteraction: true
-          });
+          sendNotification(
+            `Waktu ${name}`,
+            `Telah masuk waktu sholat ${name}`,
+            `prayer-${name}-${time.getTime()}`
+          );
         }
 
         // Check for iqama time
         const iqamaTime = new Date(time.getTime() + (settings.iqamaAdjustments[name] || 0) * 60000);
         if (isSameMinute(now, iqamaTime)) {
-          new Notification(`${name} Iqama Time`, {
-            body: `It's time for ${name} iqama`,
-            icon: '/pwa-192x192.png',
-            badge: '/pwa-192x192.png',
-            tag: `iqama-${name}-${iqamaTime.getTime()}`,
-            requireInteraction: true
-          });
+          sendNotification(
+            `Iqama ${name}`,
+            `Waktu iqama untuk sholat ${name}`,
+            `iqama-${name}-${iqamaTime.getTime()}`
+          );
+        }
+
+        // Pre-adhan notification (5 minutes before)
+        const preAdhanTime = new Date(time.getTime() - 5 * 60000);
+        if (isSameMinute(now, preAdhanTime)) {
+          sendNotification(
+            `Persiapan ${name}`,
+            `5 menit menuju waktu sholat ${name}`,
+            `pre-${name}-${time.getTime()}`
+          );
         }
       });
     };
@@ -265,9 +320,9 @@ function App() {
               </div>
             )}
 
-            <div className={`p-4 rounded-lg ${
+            <div className="md:col-span-2 p-4 rounded-lg ${
               isNightTime() ? 'bg-gray-800/50' : 'bg-white/80'
-            } backdrop-blur-sm shadow-lg`}>
+            } backdrop-blur-sm shadow-lg">
               <div className="flex items-center justify-center gap-2 mb-3">
                 <Clock className="w-5 h-5 text-amber-500" />
                 <h2 className={`text-base font-medium ${
