@@ -1,5 +1,5 @@
 import React from 'react';
-import { X, Volume2, Clock, Bell, Minus, Plus, Settings2 } from 'lucide-react';
+import { X, Clock, Bell, Minus, Plus, Settings2 } from 'lucide-react';
 import { CalculationMethod, AsrCalculation, TimeAdjustments } from '../types';
 
 interface SettingsPanelProps {

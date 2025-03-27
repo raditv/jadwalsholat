@@ -22,6 +22,8 @@ export default defineConfig({
         iarc_rating_id: 'e84b072d-71b3-4d3e-86ae-31a8ce4e53b7',
         orientation: 'portrait-primary',
         prefer_related_applications: false,
+        permissions: ['notifications'],
+        gcm_sender_id: '103953800507',
         related_applications: [
           {
             platform: 'webapp',
