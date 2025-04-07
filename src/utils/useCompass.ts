@@ -3,7 +3,6 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import throttle from "lodash.throttle";
 
 export type DeviceOrientationPermission = "granted" | "denied" | "default";
-
 export type OrientationState = {
   degree: number;
   accuracy: number;
@@ -27,7 +26,7 @@ const useCompass = (interval: number = 20): OrientationState | null => {
       if (event.absolute) {
         absolute.current = true;
       }
-      // Untuk perangkat iOS dengan webkitCompassHeading
+      // Untuk iOS dengan webkitCompassHeading
       if (typeof (event as any).webkitCompassHeading !== "undefined") {
         updateAlpha({
           degree: 360 - (event as any).webkitCompassHeading,

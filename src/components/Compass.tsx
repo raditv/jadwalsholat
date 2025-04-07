@@ -77,69 +77,98 @@ interface CompassProps {
 }
 
 const Compass = ({ deviceOrientation, qiblaDirection }: CompassProps) => {
+  // Gunakan data sensor dari useCompass, fallback ke deviceOrientation jika belum tersedia
   const compassState = useCompass(100);
-
-  const getRotation = useCallback(() => {
-    // Gunakan nilai dari hook useCompass jika tersedia, jika tidak fallback ke deviceOrientation
-    const currentHeading = compassState && compassState.degree !== null ? compassState.degree : deviceOrientation || 0;
-    return (qiblaDirection - currentHeading + 360) % 360;
-  }, [compassState, deviceOrientation, qiblaDirection]);
+  const currentHeading =
+    compassState && compassState.degree !== null ? compassState.degree : deviceOrientation || 0;
+  // Hitung rotasi jarum penunjuk relatif arah kiblat
+  const rotation = (qiblaDirection - currentHeading + 360) % 360;
 
   return (
-    <div className="flex-1 flex flex-col items-center justify-center">
-      {deviceOrientation === null && !compassState ? (
-        <div className="text-center p-4">
-          <p className="text-gray-600 dark:text-gray-400 mb-2">Menunggu data sensor...</p>
-          <p className="text-sm text-gray-500 dark:text-gray-500">
-            Arahkan perangkat Anda ke berbagai arah untuk mengaktifkan sensor.
+    <div className="flex-1 flex flex-col items-center justify-center p-4">
+      <CompassDial rotation={rotation} />
+      <div className="mt-6 text-center">
+        <p className="text-lg font-medium text-gray-800 dark:text-gray-200">
+          Arah Kiblat: {qiblaDirection.toFixed(2)}°
+        </p>
+        <p className="text-sm text-gray-600 dark:text-gray-400">
+          Arah Perangkat: {currentHeading.toFixed(2)}°
+        </p>
+        {compassState && compassState.accuracy !== null && (
+          <p className="text-sm text-gray-600 dark:text-gray-400">
+            Akurasi: ±{compassState.accuracy.toFixed(2)}°
           </p>
+        )}
+      </div>
+    </div>
+  );
+};
+
+interface CompassDialProps {
+  rotation: number;
+}
+
+const CompassDial = ({ rotation }: CompassDialProps) => {
+  // Daftar penanda arah
+  const directions = [
+    { angle: 0, label: "N" },
+    { angle: 45, label: "NE" },
+    { angle: 90, label: "E" },
+    { angle: 135, label: "SE" },
+    { angle: 180, label: "S" },
+    { angle: 225, label: "SW" },
+    { angle: 270, label: "W" },
+    { angle: 315, label: "NW" },
+  ];
+
+  return (
+    <div className="relative w-64 h-64">
+      {/* Lingkaran dial luar */}
+      <div className="absolute inset-0 rounded-full border-4 border-gray-300"></div>
+
+      {/* Marker arah */}
+      {directions.map((dir) => (
+        <div
+          key={dir.angle}
+          className="absolute"
+          style={{
+            top: "50%",
+            left: "50%",
+            transform: `rotate(${dir.angle}deg) translateY(-calc(50% - 20px))`,
+            transformOrigin: "center center",
+          }}
+        >
+          <div
+            style={{
+              transform: `rotate(-${dir.angle}deg)`,
+              fontSize: "1rem",
+              fontWeight: dir.label === "N" ? "bold" : "normal",
+            }}
+          >
+            {dir.label}
+          </div>
         </div>
-      ) : (
-        <>
-          <div className="relative w-64 h-64">
-            {/* Gambar kompas dengan animasi rotasi */}
-            <div
-              className="absolute inset-0 bg-contain bg-center bg-no-repeat"
-              style={{
-                backgroundImage: "url(/compass.png)",
-                transform: `rotate(${getRotation()}deg)`,
-                transition: "transform 0.3s ease-out",
-              }}
-            />
-            {/* Indikator arah kiblat */}
-            <div className="absolute inset-0 flex items-center justify-center">
-              <div className="w-2 h-32 bg-red-500 transform origin-bottom" />
-            </div>
-          </div>
+      ))}
 
-          <div className="mt-6 text-center">
-            <p className="text-lg font-medium text-gray-800 dark:text-gray-200">
-              Arah Kiblat: {qiblaDirection.toFixed(2)}°
-            </p>
-            {deviceOrientation !== null && (
-              <p className="text-sm text-gray-600 dark:text-gray-400">
-                Arah Perangkat: {deviceOrientation.toFixed(2)}°
-              </p>
-            )}
-            {compassState && compassState.accuracy !== null && (
-              <p className="text-sm text-gray-600 dark:text-gray-400">
-                Akurasi: ±{compassState.accuracy.toFixed(2)}°
-              </p>
-            )}
-          </div>
+      {/* Jarum penunjuk arah kiblat */}
+      <div className="absolute inset-0 flex items-center justify-center">
+        <div
+          style={{
+            width: 0,
+            height: 0,
+            borderLeft: "10px solid transparent",
+            borderRight: "10px solid transparent",
+            borderBottom: "60px solid red",
+            transform: `rotate(${rotation}deg)`,
+            transition: "transform 0.3s ease-out",
+          }}
+        ></div>
+      </div>
 
-          <div className="mt-4 p-3 bg-gray-100 dark:bg-gray-700 rounded-lg">
-            <p className="text-sm text-gray-700 dark:text-gray-300">
-              <strong>Cara Menggunakan:</strong>
-            </p>
-            <ol className="text-sm text-gray-600 dark:text-gray-400 mt-1 list-decimal list-inside">
-              <li>Kalibrasi kompas jika diperlukan</li>
-              <li>Arahkan perangkat ke arah yang ditunjukkan</li>
-              <li>Pastikan perangkat dalam posisi datar</li>
-            </ol>
-          </div>
-        </>
-      )}
+      {/* Titik pusat */}
+      <div className="absolute inset-0 flex items-center justify-center">
+        <div className="w-4 h-4 bg-gray-800 rounded-full"></div>
+      </div>
     </div>
   );
 };
