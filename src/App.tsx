@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { PrayerTimes, Coordinates, CalculationMethod, AsrCalculation, TimeAdjustments } from './types';
 import { HijriDateDisplay } from './components/HijriDate';
-import { Settings, MapPin, Moon, Sun, Sunrise, Coffee, Sun as SunIcon, Cloud, Sunset, Moon as MoonIcon, Clock, Bell, Calendar, Star, CloudSun } from 'lucide-react';
+import { Settings, MapPin, Moon, Sun, Sunrise, Coffee, Sun as SunIcon, Cloud, Sunset, Moon as MoonIcon, Clock, Bell, Calendar, Star, CloudSun, Compass } from 'lucide-react';
 import { SettingsPanel } from './components/SettingsPanel';
 import { calculatePrayerTimes, getNextPrayer, getCurrentPrayer } from './utils/prayerTimes';
 import { getCityName, getCountry } from './utils/geocoding';
@@ -12,6 +12,7 @@ import { CitySelector } from './components/CitySelector';
 import { RamadanCountdown } from './components/RamadanCountdown';
 import { isRamadan } from './utils/ramadan';
 import { PrayerTimeCard } from './components/PrayerTimeCard';
+import { QiblaDirection } from './components/QiblaDirection';
 
 // Define the settings interface
 interface Settings {
@@ -54,6 +55,8 @@ function App() {
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [currentPrayer, setCurrentPrayer] = useState<string | null>(null);
   const [isCitySelectorOpen, setIsCitySelectorOpen] = useState(false);
+  const [isQiblaOpen, setIsQiblaOpen] = useState(false);
+  const [qiblaDirection, setQiblaDirection] = useState(0);
 
   // Load settings from localStorage
   const loadSettings = (): Settings => {
@@ -97,31 +100,55 @@ function App() {
       }
     });
 
-    // Then try to get actual location
-    if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(
-        async (position) => {
-          const coords = {
-            latitude: position.coords.latitude,
-            longitude: position.coords.longitude
-          };
-          setCoordinates(coords);
-          const city = await getCityName(coords.latitude, coords.longitude);
-          setCityName(city);
-          
-          // Set calculation method based on country
-          const country = await getCountry(coords.latitude, coords.longitude);
-          if (country === 'Indonesia') {
-            updateSettings({ calculationMethod: 'KemenagRI' });
-          } else {
-            updateSettings({ calculationMethod: 'MuslimWorldLeague' });
-          }
-        },
-        (error) => {
-          console.error('Error getting location:', error);
+    // Request location permission
+    const requestLocationPermission = async () => {
+      try {
+        const position = await new Promise<GeolocationPosition>((resolve, reject) => {
+          navigator.geolocation.getCurrentPosition(resolve, reject, {
+            enableHighAccuracy: true,
+            timeout: 5000,
+            maximumAge: 0
+          });
+        });
+
+        const coords = {
+          latitude: position.coords.latitude,
+          longitude: position.coords.longitude
+        };
+        setCoordinates(coords);
+        const city = await getCityName(coords.latitude, coords.longitude);
+        setCityName(city);
+        
+        // Set calculation method based on country
+        const country = await getCountry(coords.latitude, coords.longitude);
+        if (country === 'Indonesia') {
+          updateSettings({ calculationMethod: 'KemenagRI' });
+        } else {
+          updateSettings({ calculationMethod: 'MuslimWorldLeague' });
         }
-      );
-    }
+      } catch (error) {
+        console.error('Error getting location:', error);
+      }
+    };
+
+    // Request device orientation permission for compass
+    const requestCompassPermission = async () => {
+      try {
+        if (typeof DeviceOrientationEvent !== 'undefined' && 
+            typeof (DeviceOrientationEvent as any).requestPermission === 'function') {
+          const permission = await (DeviceOrientationEvent as any).requestPermission();
+          if (permission !== 'granted') {
+            console.warn('Compass permission denied');
+          }
+        }
+      } catch (error) {
+        console.error('Error requesting compass permission:', error);
+      }
+    };
+
+    // Request both permissions
+    requestLocationPermission();
+    requestCompassPermission();
   }, []);
 
   useEffect(() => {
@@ -294,6 +321,29 @@ function App() {
     const interval = setInterval(checkPrayerTimes, 60000); // Check every minute
     return () => clearInterval(interval);
   }, [settings.notificationsEnabled, prayerTimes, settings.iqamaAdjustments]);
+
+  // Calculate Qibla direction when coordinates change
+  useEffect(() => {
+    if (coordinates) {
+      // Kaaba coordinates
+      const kaabaLat = 21.4225;
+      const kaabaLng = 39.8262;
+      
+      // Calculate Qibla direction
+      const lat1 = coordinates.latitude * Math.PI / 180;
+      const lat2 = kaabaLat * Math.PI / 180;
+      const lngDiff = (kaabaLng - coordinates.longitude) * Math.PI / 180;
+      
+      const y = Math.sin(lngDiff);
+      const x = Math.cos(lat1) * Math.tan(lat2) - Math.sin(lat1) * Math.cos(lngDiff);
+      let qibla = Math.atan2(y, x) * 180 / Math.PI;
+      
+      // Normalize to 0-360
+      qibla = (qibla + 360) % 360;
+      
+      setQiblaDirection(qibla);
+    }
+  }, [coordinates]);
 
   return (
     <div className={`min-h-screen transition-colors duration-500 ${
@@ -469,9 +519,15 @@ function App() {
                   <tr className={`border-b ${
                     isNightTime() ? 'border-gray-700/50' : 'border-gray-200/50'
                   }`}>
-                    <th className="px-4 py-3 text-left text-sm font-medium">Prayer</th>
-                    <th className="px-4 py-3 text-left text-sm font-medium">Adhan</th>
-                    <th className="px-4 py-3 text-left text-sm font-medium">Iqama</th>
+                    <th className={`px-4 py-3 text-left text-sm font-medium ${
+                      isNightTime() ? 'text-gray-200' : 'text-gray-700'
+                    }`}>Prayer</th>
+                    <th className={`px-4 py-3 text-left text-sm font-medium ${
+                      isNightTime() ? 'text-gray-200' : 'text-gray-700'
+                    }`}>Adhan</th>
+                    <th className={`px-4 py-3 text-left text-sm font-medium ${
+                      isNightTime() ? 'text-gray-200' : 'text-gray-700'
+                    }`}>Iqama</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -482,7 +538,7 @@ function App() {
                         ? isNightTime()
                           ? 'bg-emerald-600/90 text-white'
                           : 'bg-emerald-600 text-white'
-                        : isNightTime() ? 'text-white' : 'text-gray-800'
+                        : isNightTime() ? 'text-gray-200' : 'text-gray-800'
                       }
                       border-b ${isNightTime() ? 'border-gray-700/50' : 'border-gray-200/50'}
                       hover:bg-black/5
@@ -519,6 +575,20 @@ function App() {
           </button>
         </div>
 
+        <div className="fixed bottom-4 left-4">
+          <button 
+            onClick={() => setIsQiblaOpen(true)}
+            className={`p-3 rounded-xl transition-all duration-300 ${
+              isNightTime()
+                ? 'bg-emerald-600/90 text-white shadow-lg shadow-emerald-600/20 hover:bg-emerald-500/90'
+                : 'bg-emerald-600 text-white shadow-lg shadow-emerald-600/20 hover:bg-emerald-500'
+            }`}
+            aria-label="Qibla Direction"
+          >
+            <Compass className="w-5 h-5" />
+          </button>
+        </div>
+
         <SettingsPanel
           isOpen={isSettingsOpen}
           onClose={() => setIsSettingsOpen(false)}
@@ -548,6 +618,12 @@ function App() {
           onNotificationToggle={() => 
             updateSettings({ notificationsEnabled: !settings.notificationsEnabled })
           }
+        />
+
+        <QiblaDirection
+          isOpen={isQiblaOpen}
+          onClose={() => setIsQiblaOpen(false)}
+          coordinates={coordinates || { latitude: -6.2088, longitude: 106.8456 }}
         />
 
         <CitySelector

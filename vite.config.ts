@@ -4,11 +4,18 @@ import { VitePWA } from 'vite-plugin-pwa';
 
 export default defineConfig({
   plugins: [
-    react(),
+    react({
+      jsxRuntime: 'automatic',
+      jsxImportSource: 'react',
+      babel: {
+        plugins: [
+          ['@babel/plugin-transform-react-jsx', { runtime: 'automatic' }]
+        ]
+      }
+    }),
     VitePWA({
       registerType: 'autoUpdate',
       includeAssets: ['favicon.ico', 'apple-touch-icon.png', 'masked-icon.svg'],
-      strategies: 'generateSW',
       manifest: {
         id: '/prayer-times-app',
         name: 'Prayer Times - Islamic Prayer Times & Qibla Direction',
@@ -35,8 +42,8 @@ export default defineConfig({
         ],
         launch_handler: {
           client_mode: 'auto',
-          scope: "/",
-          navigators: ["browser", "webapp"]
+          scope: '/',
+          navigators: ['browser', 'webapp']
         },
         screenshots: [
           {
@@ -129,7 +136,9 @@ export default defineConfig({
       }
     })
   ],
-  optimizeDeps: {
-    exclude: ['lucide-react'],
-  },
+  resolve: {
+    alias: {
+      '@': '/src'
+    }
+  }
 });

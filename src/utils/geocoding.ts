@@ -6,8 +6,14 @@ export async function getCityName(latitude: number, longitude: number): Promise<
       return cachedName;
     }
 
+    // Use Nominatim API from OpenStreetMap
     const response = await fetch(
-      `/api/geocode?lat=${latitude}&lon=${longitude}`
+      `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}&zoom=10&addressdetails=1`,
+      {
+        headers: {
+          'User-Agent': 'JadwalSholat/1.0'
+        }
+      }
     );
     
     if (!response.ok) {
@@ -48,8 +54,14 @@ export async function getCityName(latitude: number, longitude: number): Promise<
 
 export async function getCountry(latitude: number, longitude: number): Promise<string> {
   try {
+    // Use Nominatim API from OpenStreetMap
     const response = await fetch(
-      `/api/geocode?lat=${latitude}&lon=${longitude}`
+      `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}&zoom=0&addressdetails=1`,
+      {
+        headers: {
+          'User-Agent': 'JadwalSholat/1.0'
+        }
+      }
     );
     
     if (!response.ok) {
