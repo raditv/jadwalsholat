@@ -3,7 +3,7 @@ import { useMemo } from "react";
 import { X } from "lucide-react";
 import { Coordinates } from "adhan";
 import { getQiblaDirection } from "../utils/qibla";
-import CompassWrapper from "./CompassWrapper";
+import CompassWrapper from "./Compass";
 
 interface QiblaDirectionProps {
   isOpen: boolean;
