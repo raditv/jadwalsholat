@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 import useCompass, { requestPermission, isSafari, OrientationState } from "../utils/useCompass";
-import { Compass as CompassIcon } from "lucide-react";
 
 interface CompassWrapperProps {
   qiblaDirection: number;
@@ -101,15 +100,23 @@ const Compass = ({ deviceOrientation, qiblaDirection }: CompassProps) => {
     setCompass(_compass);
   }, [_compass]);
 
+  // Hitung sudut relatif antara arah perangkat dan arah kiblat
   const getRotation = () => {
     if (deviceOrientation === null) return 0;
-    // Hitung sudut relatif antara arah perangkat dan arah kiblat
+    
+    // Jika menggunakan compass dari hook
+    if (compass && compass.degree !== null) {
+      // Hitung selisih antara arah kiblat dan arah perangkat
+      return (qiblaDirection - compass.degree + 360) % 360;
+    }
+    
+    // Jika menggunakan deviceOrientation
     return (qiblaDirection - deviceOrientation + 360) % 360;
   };
 
   return (
     <div className="flex-1 flex flex-col items-center justify-center">
-      {deviceOrientation === null ? (
+      {deviceOrientation === null && compass === null ? (
         <div className="text-center p-4">
           <p className="text-gray-600 dark:text-gray-400 mb-2">
             Menunggu data sensor...
@@ -120,23 +127,49 @@ const Compass = ({ deviceOrientation, qiblaDirection }: CompassProps) => {
         </div>
       ) : (
         <>
-          <div
-            className="w-64 h-64 relative"
-            style={{
-              transform: `rotate(${getRotation()}deg)`,
-              transition: "transform 0.2s ease-out",
-            }}
-          >
-            <CompassIcon className="w-full h-full text-emerald-600 dark:text-emerald-500" />
+          <div className="relative w-64 h-64">
+            {/* Gambar kompas */}
+            <div
+              className="absolute inset-0 bg-contain bg-center bg-no-repeat"
+              style={{
+                backgroundImage: "url(/compass.png)",
+                transform: `rotate(${getRotation()}deg)`,
+                transition: "transform 0.2s ease-out",
+              }}
+            />
+            
+            {/* Indikator arah kiblat */}
+            <div className="absolute inset-0 flex items-center justify-center">
+              <div className="w-2 h-32 bg-red-500 transform origin-bottom" />
+            </div>
           </div>
-          <p className="mt-4 text-sm text-gray-600 dark:text-gray-400">
-            Arah Kiblat: {qiblaDirection.toFixed(2)}°
-          </p>
-          {deviceOrientation !== null && (
-            <p className="text-sm text-gray-600 dark:text-gray-400">
-              Arah Perangkat: {deviceOrientation.toFixed(2)}°
+          
+          <div className="mt-6 text-center">
+            <p className="text-lg font-medium text-gray-800 dark:text-gray-200">
+              Arah Kiblat: {qiblaDirection.toFixed(2)}°
             </p>
-          )}
+            {deviceOrientation !== null && (
+              <p className="text-sm text-gray-600 dark:text-gray-400">
+                Arah Perangkat: {deviceOrientation.toFixed(2)}°
+              </p>
+            )}
+            {compass && compass.accuracy !== null && (
+              <p className="text-sm text-gray-600 dark:text-gray-400">
+                Akurasi: ±{compass.accuracy.toFixed(2)}°
+              </p>
+            )}
+          </div>
+          
+          <div className="mt-4 p-3 bg-gray-100 dark:bg-gray-700 rounded-lg">
+            <p className="text-sm text-gray-700 dark:text-gray-300">
+              <strong>Cara Menggunakan:</strong>
+            </p>
+            <ol className="text-sm text-gray-600 dark:text-gray-400 mt-1 list-decimal list-inside">
+              <li>Kalibrasi kompas jika diperlukan</li>
+              <li>Arahkan perangkat ke arah yang ditunjukkan</li>
+              <li>Pastikan perangkat dalam posisi datar</li>
+            </ol>
+          </div>
         </>
       )}
     </div>
