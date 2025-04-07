@@ -1,10 +1,9 @@
 // components/CompassWrapper.tsx
-import { useEffect, useState, useCallback } from "react";
-import useCompass from "../utils/useCompass";
-import { requestPermission, isSafari } from "../utils/useCompass";
+import { useEffect, useState } from "react";
+import useCompass, { requestPermission, isSafari } from "../utils/useCompass";
 
 interface CompassWrapperProps {
-  qiblaDirection: number;
+  qiblaDirection: number; // Arah kiblat dalam derajat
 }
 
 const CompassWrapper = ({ qiblaDirection }: CompassWrapperProps) => {
@@ -18,7 +17,6 @@ const CompassWrapper = ({ qiblaDirection }: CompassWrapperProps) => {
   };
 
   useEffect(() => {
-    // Cek dukungan sensor orientasi
     const isOrientationSupported = "DeviceOrientationEvent" in window;
     setIsSupported(isOrientationSupported);
 
@@ -71,28 +69,29 @@ const CompassWrapper = ({ qiblaDirection }: CompassWrapperProps) => {
   return <Compass deviceOrientation={deviceOrientation} qiblaDirection={qiblaDirection} />;
 };
 
+export default CompassWrapper;
+
+// -------------------------------------------------------
+// Komponen Compass dan Dial yang telah diperbarui
+
 interface CompassProps {
   deviceOrientation: number | null;
   qiblaDirection: number;
 }
 
 const Compass = ({ deviceOrientation, qiblaDirection }: CompassProps) => {
-  // Gunakan data sensor dari useCompass, fallback ke deviceOrientation jika belum tersedia
   const compassState = useCompass(100);
-  const currentHeading =
-    compassState && compassState.degree !== null ? compassState.degree : deviceOrientation || 0;
-  // Hitung rotasi jarum penunjuk relatif arah kiblat
-  const rotation = (qiblaDirection - currentHeading + 360) % 360;
+  const heading = compassState?.degree ?? deviceOrientation ?? 0;
 
   return (
     <div className="flex-1 flex flex-col items-center justify-center p-4">
-      <CompassDial rotation={rotation} />
+      <CompassDial heading={heading} qiblaDirection={qiblaDirection} />
       <div className="mt-6 text-center">
         <p className="text-lg font-medium text-gray-800 dark:text-gray-200">
           Arah Kiblat: {qiblaDirection.toFixed(2)}°
         </p>
         <p className="text-sm text-gray-600 dark:text-gray-400">
-          Arah Perangkat: {currentHeading.toFixed(2)}°
+          Arah Perangkat: {heading.toFixed(2)}°
         </p>
         {compassState && compassState.accuracy !== null && (
           <p className="text-sm text-gray-600 dark:text-gray-400">
@@ -105,11 +104,20 @@ const Compass = ({ deviceOrientation, qiblaDirection }: CompassProps) => {
 };
 
 interface CompassDialProps {
-  rotation: number;
+  heading: number;
+  qiblaDirection: number;
 }
 
-const CompassDial = ({ rotation }: CompassDialProps) => {
-  // Daftar penanda arah
+const CompassDial = ({ heading, qiblaDirection }: CompassDialProps) => {
+  // Fungsi normalisasi sudut ke rentang 0 - 360 derajat
+  const normalize = (angle: number) => ((angle % 360) + 360) % 360;
+
+  // Dial diputar negatif terhadap heading agar bagian atas selalu sesuai dengan arah perangkat
+  const dialRotation = normalize(-heading);
+  // Net rotation untuk jarum menunjuk ke qibla (jarum dirotasi secara independen)
+  const arrowRotation = normalize(qiblaDirection);
+
+  // Daftar marker arah
   const directions = [
     { angle: 0, label: "N" },
     { angle: 45, label: "NE" },
@@ -122,36 +130,36 @@ const CompassDial = ({ rotation }: CompassDialProps) => {
   ];
 
   return (
-    <div className="relative w-64 h-64">
-      {/* Lingkaran dial luar */}
-      <div className="absolute inset-0 rounded-full border-4 border-gray-300"></div>
+    <div className="compass-dial">
+      {/* Dial yang berputar mengikuti heading perangkat */}
+      <div
+        className="compass-dial-outer transition-transform duration-300 ease-out"
+        style={{ transform: `rotate(${dialRotation}deg)` }}
+      ></div>
 
       {/* Marker arah */}
       {directions.map((dir) => (
         <div
           key={dir.angle}
-          className="absolute"
+          className="compass-marker"
           style={{
             top: "50%",
             left: "50%",
             transform: `rotate(${dir.angle}deg) translateY(-calc(50% - 20px))`,
             transformOrigin: "center center",
+            fontSize: "1rem",
+            fontWeight: dir.label === "N" ? "bold" : "normal",
           }}
         >
-          <div
-            style={{
-              transform: `rotate(-${dir.angle}deg)`,
-              fontSize: "1rem",
-              fontWeight: dir.label === "N" ? "bold" : "normal",
-            }}
-          >
-            {dir.label}
-          </div>
+          <div style={{ transform: `rotate(-${dir.angle}deg)` }}>{dir.label}</div>
         </div>
       ))}
 
       {/* Jarum penunjuk arah kiblat */}
-      <div className="absolute inset-0 flex items-center justify-center">
+      <div
+        className="compass-arrow"
+        style={{ transform: `rotate(${arrowRotation}deg)` }}
+      >
         <div
           style={{
             width: 0,
@@ -159,18 +167,14 @@ const CompassDial = ({ rotation }: CompassDialProps) => {
             borderLeft: "10px solid transparent",
             borderRight: "10px solid transparent",
             borderBottom: "60px solid red",
-            transform: `rotate(${rotation}deg)`,
-            transition: "transform 0.3s ease-out",
           }}
-        ></div>
+        />
       </div>
 
-      {/* Titik pusat */}
-      <div className="absolute inset-0 flex items-center justify-center">
-        <div className="w-4 h-4 bg-gray-800 rounded-full"></div>
+      {/* Titik pusat kompas */}
+      <div className="compass-center">
+        <div className="w-4 h-4 bg-gray-800 dark:bg-gray-200 rounded-full" />
       </div>
     </div>
   );
 };
-
-export default CompassWrapper;

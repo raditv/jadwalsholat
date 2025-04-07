@@ -12,7 +12,7 @@ interface QiblaDirectionProps {
 }
 
 export const QiblaDirection = ({ isOpen, onClose, coordinates }: QiblaDirectionProps) => {
-  // Gunakan useMemo untuk menghitung arah kiblat hanya saat koordinat berubah
+  // Hitung arah kiblat hanya saat koordinat berubah
   const qiblaDirection = useMemo(() => {
     if (coordinates) {
       return getQiblaDirection(coordinates);
@@ -24,8 +24,11 @@ export const QiblaDirection = ({ isOpen, onClose, coordinates }: QiblaDirectionP
 
   return (
     <div className="fixed inset-0 z-50 flex">
+      {/* Background overlay */}
       <div className="fixed inset-0 bg-black/50" onClick={onClose} />
-      <div className="relative w-full max-w-md bg-white dark:bg-gray-800 shadow-lg rounded-lg overflow-hidden">
+      
+      {/* Panel Konten */}
+      <div className="relative w-full max-w-md bg-white dark:bg-gray-800 shadow-lg rounded-lg overflow-hidden m-auto">
         <div className="flex items-center justify-between p-4 border-b dark:border-gray-700">
           <h2 className="text-lg font-semibold text-gray-900 dark:text-white">Arah Kiblat</h2>
           <button
@@ -36,6 +39,7 @@ export const QiblaDirection = ({ isOpen, onClose, coordinates }: QiblaDirectionP
             <X className="w-5 h-5 text-gray-500 dark:text-gray-400" />
           </button>
         </div>
+
         <div className="p-4">
           <div className="mb-4">
             <p className="text-sm text-gray-600 dark:text-gray-400">
@@ -48,6 +52,8 @@ export const QiblaDirection = ({ isOpen, onClose, coordinates }: QiblaDirectionP
               Longitude: {coordinates.longitude.toFixed(6)}°
             </p>
           </div>
+
+          {/* Komponen Kompas */}
           <CompassWrapper qiblaDirection={qiblaDirection} />
         </div>
       </div>

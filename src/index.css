@@ -16,6 +16,27 @@
   .prayer-card-active {
     @apply bg-emerald-600 text-white shadow-lg scale-105;
   }
+
+  /* Tambahan untuk kompas */
+  .compass-dial {
+    @apply relative w-64 h-64;
+  }
+  
+  .compass-dial-outer {
+    @apply absolute inset-0 rounded-full border-4 border-gray-300 dark:border-gray-500;
+  }
+  
+  .compass-marker {
+    @apply absolute text-gray-800 dark:text-gray-200;
+  }
+  
+  .compass-arrow {
+    @apply absolute inset-0 flex items-center justify-center transition-transform duration-300 ease-out;
+  }
+  
+  .compass-center {
+    @apply absolute inset-0 flex items-center justify-center;
+  }
 }
 
 @layer utilities {
