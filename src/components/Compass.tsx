@@ -1,5 +1,7 @@
-import { useEffect, useState } from "react";
-import useCompass, { requestPermission, isSafari, OrientationState } from "../utils/useCompass";
+// components/CompassWrapper.tsx
+import { useEffect, useState, useCallback } from "react";
+import useCompass from "../utils/useCompass";
+import { requestPermission, isSafari } from "../utils/useCompass";
 
 interface CompassWrapperProps {
   qiblaDirection: number;
@@ -10,61 +12,42 @@ const CompassWrapper = ({ qiblaDirection }: CompassWrapperProps) => {
   const [deviceOrientation, setDeviceOrientation] = useState<number | null>(null);
   const [isSupported, setIsSupported] = useState<boolean>(true);
 
-  const handleClick = () => {
-    requestPermission().then((_permission) => {
-      setPermission(_permission);
-    });
+  const handlePermissionRequest = async () => {
+    const permissionResult = await requestPermission();
+    setPermission(permissionResult);
   };
 
   useEffect(() => {
-    // Cek apakah perangkat mendukung sensor orientasi
-    const checkDeviceSupport = () => {
-      return 'DeviceOrientationEvent' in window || 
-             'ondeviceorientation' in window || 
-             'ondeviceorientationabsolute' in window;
-    };
-
-    setIsSupported(checkDeviceSupport());
+    // Cek dukungan sensor orientasi
+    const isOrientationSupported = "DeviceOrientationEvent" in window;
+    setIsSupported(isOrientationSupported);
 
     const handleOrientation = (event: DeviceOrientationEvent) => {
-      // Coba dapatkan nilai alpha (azimuth) dari berbagai properti
-      let alpha = null;
-      
-      // Coba dapatkan dari webkitCompassHeading (iOS)
-      if (typeof (event as any).webkitCompassHeading !== 'undefined') {
+      let alpha: number | null = null;
+      if (typeof (event as any).webkitCompassHeading !== "undefined") {
         alpha = 360 - (event as any).webkitCompassHeading;
-      } 
-      // Coba dapatkan dari alpha (standar)
-      else if (event.alpha !== null) {
+      } else if (event.alpha !== null) {
         alpha = event.alpha;
       }
-      // Coba dapatkan dari beta dan gamma (Android)
-      else if (event.beta !== null && event.gamma !== null) {
-        // Perhitungan sederhana untuk Android
-        alpha = Math.atan2(event.gamma, event.beta) * (180 / Math.PI);
-        alpha = (alpha + 360) % 360;
-      }
-      
       if (alpha !== null) {
         setDeviceOrientation(alpha);
       }
     };
 
-    // Coba berbagai event untuk kompatibilitas
-    window.addEventListener('deviceorientation', handleOrientation);
-    window.addEventListener('deviceorientationabsolute', handleOrientation);
-    
+    window.addEventListener("deviceorientation", handleOrientation);
+    window.addEventListener("deviceorientationabsolute", handleOrientation);
+
     return () => {
-      window.removeEventListener('deviceorientation', handleOrientation);
-      window.removeEventListener('deviceorientationabsolute', handleOrientation);
+      window.removeEventListener("deviceorientation", handleOrientation);
+      window.removeEventListener("deviceorientationabsolute", handleOrientation);
     };
   }, []);
 
   if (isSafari && permission !== "granted") {
     return (
       <div className="flex-1 flex items-center justify-center">
-        <button 
-          onClick={handleClick}
+        <button
+          onClick={handlePermissionRequest}
           className="px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition-colors"
         >
           Izinkan Akses Sensor
@@ -77,7 +60,8 @@ const CompassWrapper = ({ qiblaDirection }: CompassWrapperProps) => {
     return (
       <div className="flex-1 flex items-center justify-center">
         <p className="text-gray-600 dark:text-gray-400 text-center p-4">
-          Perangkat Anda tidak mendukung sensor orientasi.<br />
+          Perangkat Anda tidak mendukung sensor orientasi.
+          <br />
           Pastikan Anda menggunakan perangkat mobile dengan sensor kompas.
         </p>
       </div>
@@ -93,34 +77,19 @@ interface CompassProps {
 }
 
 const Compass = ({ deviceOrientation, qiblaDirection }: CompassProps) => {
-  const [compass, setCompass] = useState<OrientationState | null>(null);
-  const _compass = useCompass(100);
+  const compassState = useCompass(100);
 
-  useEffect(() => {
-    setCompass(_compass);
-  }, [_compass]);
-
-  // Hitung sudut relatif antara arah perangkat dan arah kiblat
-  const getRotation = () => {
-    if (deviceOrientation === null) return 0;
-    
-    // Jika menggunakan compass dari hook
-    if (compass && compass.degree !== null) {
-      // Hitung selisih antara arah kiblat dan arah perangkat
-      return (qiblaDirection - compass.degree + 360) % 360;
-    }
-    
-    // Jika menggunakan deviceOrientation
-    return (qiblaDirection - deviceOrientation + 360) % 360;
-  };
+  const getRotation = useCallback(() => {
+    // Gunakan nilai dari hook useCompass jika tersedia, jika tidak fallback ke deviceOrientation
+    const currentHeading = compassState && compassState.degree !== null ? compassState.degree : deviceOrientation || 0;
+    return (qiblaDirection - currentHeading + 360) % 360;
+  }, [compassState, deviceOrientation, qiblaDirection]);
 
   return (
     <div className="flex-1 flex flex-col items-center justify-center">
-      {deviceOrientation === null && compass === null ? (
+      {deviceOrientation === null && !compassState ? (
         <div className="text-center p-4">
-          <p className="text-gray-600 dark:text-gray-400 mb-2">
-            Menunggu data sensor...
-          </p>
+          <p className="text-gray-600 dark:text-gray-400 mb-2">Menunggu data sensor...</p>
           <p className="text-sm text-gray-500 dark:text-gray-500">
             Arahkan perangkat Anda ke berbagai arah untuk mengaktifkan sensor.
           </p>
@@ -128,22 +97,21 @@ const Compass = ({ deviceOrientation, qiblaDirection }: CompassProps) => {
       ) : (
         <>
           <div className="relative w-64 h-64">
-            {/* Gambar kompas */}
+            {/* Gambar kompas dengan animasi rotasi */}
             <div
               className="absolute inset-0 bg-contain bg-center bg-no-repeat"
               style={{
                 backgroundImage: "url(/compass.png)",
                 transform: `rotate(${getRotation()}deg)`,
-                transition: "transform 0.2s ease-out",
+                transition: "transform 0.3s ease-out",
               }}
             />
-            
             {/* Indikator arah kiblat */}
             <div className="absolute inset-0 flex items-center justify-center">
               <div className="w-2 h-32 bg-red-500 transform origin-bottom" />
             </div>
           </div>
-          
+
           <div className="mt-6 text-center">
             <p className="text-lg font-medium text-gray-800 dark:text-gray-200">
               Arah Kiblat: {qiblaDirection.toFixed(2)}°
@@ -153,13 +121,13 @@ const Compass = ({ deviceOrientation, qiblaDirection }: CompassProps) => {
                 Arah Perangkat: {deviceOrientation.toFixed(2)}°
               </p>
             )}
-            {compass && compass.accuracy !== null && (
+            {compassState && compassState.accuracy !== null && (
               <p className="text-sm text-gray-600 dark:text-gray-400">
-                Akurasi: ±{compass.accuracy.toFixed(2)}°
+                Akurasi: ±{compassState.accuracy.toFixed(2)}°
               </p>
             )}
           </div>
-          
+
           <div className="mt-4 p-3 bg-gray-100 dark:bg-gray-700 rounded-lg">
             <p className="text-sm text-gray-700 dark:text-gray-300">
               <strong>Cara Menggunakan:</strong>
@@ -176,4 +144,4 @@ const Compass = ({ deviceOrientation, qiblaDirection }: CompassProps) => {
   );
 };
 
-export default CompassWrapper; 
+export default CompassWrapper;

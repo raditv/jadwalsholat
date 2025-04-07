@@ -1,78 +1,78 @@
+// utils/useCompass.ts
 import { useEffect, useMemo, useRef, useState } from "react";
 import throttle from "lodash.throttle";
 
-export type DeviceOrientationPermission = "granted" | "denied" | "default"
+export type DeviceOrientationPermission = "granted" | "denied" | "default";
 
 export type OrientationState = {
-  degree: number,
-  accuracy: number,
-}
+  degree: number;
+  accuracy: number;
+};
 
-const useCompass = (interval: number = 20) => {
+const useCompass = (interval: number = 20): OrientationState | null => {
   const absolute = useRef<boolean>(false);
   const [state, setState] = useState<OrientationState | null>(null);
 
-  const updateAlpha = useMemo(
-    () =>
-      throttle(
-        (_state: OrientationState | null) => {
-          setState(_state);
-        },
-        Math.max(5, interval)
-      ),
-    []
-  );
+  const updateAlpha = useMemo(() => {
+    return throttle(
+      (newState: OrientationState | null) => {
+        setState(newState);
+      },
+      Math.max(5, interval)
+    );
+  }, [interval]);
 
   useEffect(() => {
-    const el = (e: DeviceOrientationEvent) => {
-      if (e.absolute) absolute.current = true;
-      // @ts-ignore
-      if (typeof e.webkitCompassHeading !== "undefined") {
-        // @ts-ignore
-        updateAlpha({degree: 360 - e.webkitCompassHeading, accuracy: e.webkitCompassAccuracy});
-      } else if (e.absolute === absolute.current) {
-        updateAlpha(e.alpha !== null ? {degree: e.alpha, accuracy: 0}: null);
+    const handleOrientation = (event: DeviceOrientationEvent) => {
+      if (event.absolute) {
+        absolute.current = true;
+      }
+      // Untuk perangkat iOS dengan webkitCompassHeading
+      if (typeof (event as any).webkitCompassHeading !== "undefined") {
+        updateAlpha({
+          degree: 360 - (event as any).webkitCompassHeading,
+          accuracy: (event as any).webkitCompassAccuracy || 0,
+        });
+      } else if (event.absolute === absolute.current && event.alpha !== null) {
+        updateAlpha({ degree: event.alpha, accuracy: 0 });
       }
     };
 
-    // @ts-ignore
-    window.addEventListener("deviceorientationabsolute", el);
-    window.addEventListener("deviceorientation", el);
+    window.addEventListener("deviceorientation", handleOrientation);
+    window.addEventListener("deviceorientationabsolute", handleOrientation);
 
     return () => {
-      // @ts-ignore
-      window.removeEventListener("deviceorientationabsolute", el);
-      window.removeEventListener("deviceorientation", el);
+      window.removeEventListener("deviceorientation", handleOrientation);
+      window.removeEventListener("deviceorientationabsolute", handleOrientation);
     };
-  }, []);
+  }, [updateAlpha]);
 
   return state;
 };
 
 export default useCompass;
 
-export const requestPermission = (): Promise<DeviceOrientationPermission> => {
-  const ret = Promise.resolve("granted" as DeviceOrientationPermission)
-  // @ts-ignore
-  if ( isSafari && typeof DeviceOrientationEvent !== 'undefined' && typeof DeviceOrientationEvent?.requestPermission === "function" ) {
-    // @ts-ignore
-    return DeviceOrientationEvent.requestPermission()
+export const requestPermission = async (): Promise<DeviceOrientationPermission> => {
+  if (
+    isSafari &&
+    typeof DeviceOrientationEvent !== "undefined" &&
+    typeof DeviceOrientationEvent.requestPermission === "function"
+  ) {
+    try {
+      const response = await DeviceOrientationEvent.requestPermission();
+      return response;
+    } catch (error) {
+      return "denied";
+    }
   }
-  return ret
-}
+  return "granted";
+};
 
 export const isSafari: boolean = (() => {
   try {
-    return Boolean(
-      navigator &&
-        navigator.userAgent &&
-        navigator.userAgent.includes("Safari/") &&
-        !(
-          navigator.userAgent.includes("Chrome/") ||
-          navigator.userAgent.includes("Chromium/")
-        ),
-    );
-  } catch {
+    const ua = navigator.userAgent;
+    return ua.includes("Safari/") && !ua.includes("Chrome/") && !ua.includes("Chromium/");
+  } catch (error) {
     return false;
   }
-})() 
+})();
