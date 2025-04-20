@@ -119,14 +119,26 @@ const CompassDial = ({ heading, qiblaDirection }: CompassDialProps) => {
   const needleRotation = 0;
 
   // Hitung posisi qibla relatif terhadap kompas
-  // Radius = setengah lebar kompas + jarak dari tepi
-  const qiblaRadius = 150 + 25; // 150 = setengah dari 300px (ukuran kompas)
-  const qiblaAngle = normalize(qiblaDirection + dialRotation); // Sesuaikan dengan rotasi kompas
+  const qiblaRadius = 150 + 25;
+  const qiblaAngle = normalize(qiblaDirection + dialRotation);
   const qiblaX = qiblaRadius * Math.cos((qiblaAngle - 90) * Math.PI / 180);
   const qiblaY = qiblaRadius * Math.sin((qiblaAngle - 90) * Math.PI / 180);
 
+  // Cek apakah device mengarah ke kiblat (dengan toleransi ±5 derajat)
+  useEffect(() => {
+    const threshold = 5; // toleransi dalam derajat
+    const diff = Math.abs(normalize(heading - qiblaDirection));
+    
+    if (diff <= threshold || diff >= (360 - threshold)) {
+      // Berikan getaran pendek ketika mengarah ke kiblat
+      if ('vibrate' in navigator) {
+        navigator.vibrate(200); // 200ms vibration
+      }
+    }
+  }, [heading, qiblaDirection]);
+
   return (
-    <div className="relative w-[350px] h-[350px] mx-auto"> {/* Perbesar container untuk menampung qibla indicator */}
+    <div className="relative w-[350px] h-[350px] mx-auto">
       <div className="absolute left-1/2 top-1/2 w-[300px] h-[300px] -translate-x-1/2 -translate-y-1/2">
         {/* Kompas background - berputar mengikuti arah mata angin */}
         <div 
