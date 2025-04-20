@@ -6,6 +6,23 @@
   body {
     @apply antialiased text-gray-900 bg-gray-50;
   }
+
+  /* Safe area insets for mobile */
+  .header {
+    padding-top: env(safe-area-inset-top);
+  }
+  
+  .footer {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+  
+  .safe-left {
+    padding-left: env(safe-area-inset-left);
+  }
+  
+  .safe-right {
+    padding-right: env(safe-area-inset-right);
+  }
 }
 
 @layer components {
