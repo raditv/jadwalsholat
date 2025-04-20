@@ -41,18 +41,6 @@ export const QiblaDirection = ({ isOpen, onClose, coordinates }: QiblaDirectionP
         </div>
 
         <div className="p-4">
-          <div className="mb-4">
-            <p className="text-sm text-gray-600 dark:text-gray-400">
-              Arah Kiblat: {qiblaDirection.toFixed(2)}°
-            </p>
-            <p className="text-sm text-gray-600 dark:text-gray-400">
-              Latitude: {coordinates.latitude.toFixed(6)}°
-            </p>
-            <p className="text-sm text-gray-600 dark:text-gray-400">
-              Longitude: {coordinates.longitude.toFixed(6)}°
-            </p>
-          </div>
-
           {/* Komponen Kompas */}
           <CompassWrapper qiblaDirection={qiblaDirection} />
         </div>
