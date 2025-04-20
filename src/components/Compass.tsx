@@ -114,66 +114,45 @@ const CompassDial = ({ heading, qiblaDirection }: CompassDialProps) => {
 
   // Dial diputar negatif terhadap heading agar bagian atas selalu sesuai dengan arah perangkat
   const dialRotation = normalize(-heading);
-  // Net rotation untuk jarum menunjuk ke qibla (jarum dirotasi secara independen)
-  const arrowRotation = normalize(qiblaDirection);
-
-  // Daftar marker arah
-  const directions = [
-    { angle: 0, label: "N" },
-    { angle: 45, label: "NE" },
-    { angle: 90, label: "E" },
-    { angle: 135, label: "SE" },
-    { angle: 180, label: "S" },
-    { angle: 225, label: "SW" },
-    { angle: 270, label: "W" },
-    { angle: 315, label: "NW" },
-  ];
+  
+  // Jarum kompas selalu menunjuk ke utara
+  // Karena kompas berputar -heading, jarum harus berputar heading untuk tetap menunjuk utara
+  const needleRotation = normalize(heading);
 
   return (
-    <div className="compass-dial">
-      {/* Dial yang berputar mengikuti heading perangkat */}
-      <div
-        className="compass-dial-outer transition-transform duration-300 ease-out"
+    <div className="relative w-[300px] h-[300px] mx-auto">
+      {/* Kompas background */}
+      <div 
+        className="absolute inset-0 flex items-center justify-center transition-transform duration-300 ease-out"
         style={{ transform: `rotate(${dialRotation}deg)` }}
-      ></div>
-
-      {/* Marker arah */}
-      {directions.map((dir) => (
-        <div
-          key={dir.angle}
-          className="compass-marker"
-          style={{
-            top: "50%",
-            left: "50%",
-            transform: `rotate(${dir.angle}deg) translateY(-calc(50% - 20px))`,
-            transformOrigin: "center center",
-            fontSize: "1rem",
-            fontWeight: dir.label === "N" ? "bold" : "normal",
-          }}
-        >
-          <div style={{ transform: `rotate(-${dir.angle}deg)` }}>{dir.label}</div>
-        </div>
-      ))}
-
-      {/* Jarum penunjuk arah kiblat */}
-      <div
-        className="compass-arrow"
-        style={{ transform: `rotate(${arrowRotation}deg)` }}
       >
-        <div
-          style={{
-            width: 0,
-            height: 0,
-            borderLeft: "10px solid transparent",
-            borderRight: "10px solid transparent",
-            borderBottom: "60px solid red",
-          }}
+        <img 
+          src="/compas.png" 
+          alt="Compass" 
+          className="w-[300px] h-[300px] object-contain"
+        />
+      </div>
+
+      {/* Jarum kompas menunjuk utara */}
+      <div
+        className="absolute left-1/2 top-1/2 transition-transform duration-300 ease-out"
+        style={{ 
+          transform: `translate(-50%, -50%) rotate(${needleRotation}deg)`,
+          transformOrigin: "center center",
+          width: '40px',
+          height: '120px'
+        }}
+      >
+        <img 
+          src="/needle.png" 
+          alt="Compass Needle" 
+          className="w-full h-full object-contain"
         />
       </div>
 
       {/* Titik pusat kompas */}
-      <div className="compass-center">
-        <div className="w-4 h-4 bg-gray-800 dark:bg-gray-200 rounded-full" />
+      <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
+        <div className="w-3 h-3 bg-gray-800 dark:bg-gray-200 rounded-full" />
       </div>
     </div>
   );
