@@ -351,287 +351,289 @@ function App() {
         ? 'bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900' 
         : 'bg-gradient-to-br from-emerald-50 via-blue-50 to-emerald-50'
     }`}>
-      <div className="max-w-4xl mx-auto px-4 py-6">
-        <header className="text-center mb-6">
-          <div className="relative flex items-center justify-center mb-2 w-8 h-8 mx-auto">
-            {isNightTime() ? (
-              <>
-                <Star className={`absolute w-8 h-8 text-emerald-400 drop-shadow-glow-emerald`} />
-                <Star className={`absolute w-4 h-4 -translate-x-3 -translate-y-2 text-emerald-400/70 drop-shadow-glow-emerald`} />
-                <Star className={`absolute w-3 h-3 translate-x-3 translate-y-2 text-emerald-400/50 drop-shadow-glow-emerald`} />
-              </>
-            ) : (
-              <>
-                <CloudSun className={`absolute w-8 h-8 text-emerald-600 drop-shadow-glow-amber`} />
-                <Cloud className={`absolute w-5 h-5 -translate-x-4 translate-y-2 text-emerald-600/70 drop-shadow-glow-amber`} />
-              </>
-            )}
+      <div className="container mx-auto px-4 py-8 safe-top safe-left safe-right">
+        <div className="flex flex-col space-y-6">
+          <header className="text-center mb-6">
+            <div className="relative flex items-center justify-center mb-2 w-8 h-8 mx-auto">
+              {isNightTime() ? (
+                <>
+                  <Star className={`absolute w-8 h-8 text-emerald-400 drop-shadow-glow-emerald`} />
+                  <Star className={`absolute w-4 h-4 -translate-x-3 -translate-y-2 text-emerald-400/70 drop-shadow-glow-emerald`} />
+                  <Star className={`absolute w-3 h-3 translate-x-3 translate-y-2 text-emerald-400/50 drop-shadow-glow-emerald`} />
+                </>
+              ) : (
+                <>
+                  <CloudSun className={`absolute w-8 h-8 text-emerald-600 drop-shadow-glow-amber`} />
+                  <Cloud className={`absolute w-5 h-5 -translate-x-4 translate-y-2 text-emerald-600/70 drop-shadow-glow-amber`} />
+                </>
+              )}
+            </div>
+            <div className="flex items-center justify-between">
+              <div className="flex items-center space-x-2">
+                <MapPin className="w-5 h-5 text-emerald-600" />
+                <button 
+                  onClick={() => setIsCitySelectorOpen(true)}
+                  className="text-lg font-medium hover:text-emerald-600 transition-colors"
+                >
+                  {cityName}
+                </button>
+              </div>
+            </div>
+          </header>
+
+          <HijriDateDisplay isNightTime={isNightTime()} />
+
+          <div className="flex space-x-1 mb-8 p-1 rounded-2xl bg-white/10 backdrop-blur-md shadow-inner">
+            <button
+              onClick={() => setActiveTab('times')}
+              className={`flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl transition-all duration-300 ${
+                activeTab === 'times'
+                  ? isNightTime()
+                    ? 'bg-emerald-600/90 text-white shadow-lg shadow-emerald-600/20'
+                    : 'bg-emerald-600 text-white shadow-lg shadow-emerald-600/20'
+                  : isNightTime()
+                    ? 'text-gray-300 hover:bg-white/5'
+                    : 'text-gray-600 hover:bg-black/5'
+              }`}
+            >
+              <Clock className="w-4 h-4" />
+              <span className="font-medium">Today</span>
+            </button>
+            <button
+              onClick={() => setActiveTab('schedule')}
+              className={`flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl transition-all duration-300 ${
+                activeTab === 'schedule'
+                  ? isNightTime()
+                    ? 'bg-emerald-600/90 text-white shadow-lg shadow-emerald-600/20'
+                    : 'bg-emerald-600 text-white shadow-lg shadow-emerald-600/20'
+                  : isNightTime()
+                    ? 'text-gray-300 hover:bg-white/5'
+                    : 'text-gray-600 hover:bg-black/5'
+              }`}
+            >
+              <Calendar className="w-4 h-4" />
+              <span className="font-medium">Schedule</span>
+            </button>
           </div>
-          <button
-            onClick={() => setIsCitySelectorOpen(true)}
-            className={`flex items-center justify-center gap-2 mx-auto text-sm font-medium px-3 py-1.5 rounded-full transition-all duration-300 ${
-              isNightTime() 
-                ? 'text-gray-300 hover:text-white hover:bg-white/5 backdrop-blur-sm' 
-                : 'text-gray-600 hover:text-gray-900 hover:bg-black/5 backdrop-blur-sm'
-            }`}
-          >
-            <MapPin className="w-4 h-4" />
-            <span>{cityName}</span>
-          </button>
-        </header>
 
-        <HijriDateDisplay isNightTime={isNightTime()} />
+          {activeTab === 'times' && (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {isRamadan() && prayerTimes && (
+                <div className="md:col-span-2">
+                  <RamadanCountdown
+                    maghribTime={prayerTimes.maghrib}
+                    fajrTime={prayerTimes.fajr}
+                    isNightTime={isNightTime()}
+                  />
+                </div>
+              )}
 
-        <div className="flex space-x-1 mb-8 p-1 rounded-2xl bg-white/10 backdrop-blur-md shadow-inner">
-          <button
-            onClick={() => setActiveTab('times')}
-            className={`flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl transition-all duration-300 ${
-              activeTab === 'times'
-                ? isNightTime()
-                  ? 'bg-emerald-600/90 text-white shadow-lg shadow-emerald-600/20'
-                  : 'bg-emerald-600 text-white shadow-lg shadow-emerald-600/20'
-                : isNightTime()
-                  ? 'text-gray-300 hover:bg-white/5'
-                  : 'text-gray-600 hover:bg-black/5'
-            }`}
-          >
-            <Clock className="w-4 h-4" />
-            <span className="font-medium">Today</span>
-          </button>
-          <button
-            onClick={() => setActiveTab('schedule')}
-            className={`flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl transition-all duration-300 ${
-              activeTab === 'schedule'
-                ? isNightTime()
-                  ? 'bg-emerald-600/90 text-white shadow-lg shadow-emerald-600/20'
-                  : 'bg-emerald-600 text-white shadow-lg shadow-emerald-600/20'
-                : isNightTime()
-                  ? 'text-gray-300 hover:bg-white/5'
-                  : 'text-gray-600 hover:bg-black/5'
-            }`}
-          >
-            <Calendar className="w-4 h-4" />
-            <span className="font-medium">Schedule</span>
-          </button>
-        </div>
+              {nextPrayer && prayerTimes && (
+                <div className="md:col-span-2">
+                  <PrayerTimeCard
+                    nextPrayer={nextPrayer}
+                    isNightTime={isNightTime()}
+                  />
+                </div>
+              )}
 
-        {activeTab === 'times' && (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {isRamadan() && prayerTimes && (
               <div className="md:col-span-2">
-                <RamadanCountdown
-                  maghribTime={prayerTimes.maghrib}
-                  fajrTime={prayerTimes.fajr}
-                  isNightTime={isNightTime()}
-                />
+                <div className={`p-4 rounded-2xl transition-all duration-300 ${
+                  isNightTime() 
+                    ? 'bg-gray-800/40 backdrop-blur-md shadow-xl shadow-black/10' 
+                    : 'bg-white/80 backdrop-blur-md shadow-xl shadow-black/5'
+                }`}>
+                  <div className="flex items-center justify-center gap-2 mb-3">
+                    <Clock className={`w-5 h-5 ${
+                      isNightTime() ? 'text-emerald-400' : 'text-emerald-600'
+                    }`} />
+                    <h2 className={`text-base font-medium ${
+                      isNightTime() ? 'text-white' : 'text-gray-900'
+                    }`}>
+                      Current Prayer
+                    </h2>
+                  </div>
+                  <div className="text-center">
+                    <div className={`text-3xl font-bold mb-1 ${
+                      isNightTime() 
+                        ? 'text-emerald-400 drop-shadow-glow-emerald' 
+                        : 'text-emerald-600'
+                    }`}>
+                      {currentPrayer || 'None'}
+                    </div>
+                    <div className={`text-sm font-medium ${
+                      isNightTime() ? 'text-gray-400' : 'text-gray-600'
+                    }`}>
+                      {currentPrayer ? 'In Progress' : 'No Active Prayer'}
+                    </div>
+                  </div>
+                </div>
               </div>
-            )}
+            </div>
+          )}
 
-            {nextPrayer && prayerTimes && (
-              <div className="md:col-span-2">
-                <PrayerTimeCard
-                  nextPrayer={nextPrayer}
-                  isNightTime={isNightTime()}
-                />
+          {activeTab === 'schedule' && prayerTimes && (
+            <div className="overflow-hidden rounded-2xl">
+              <div className="flex justify-between items-center mb-3 px-1">
+                <button
+                  onClick={() => setSelectedDate(d => addDays(d, -1))}
+                  className={`p-2.5 rounded-xl transition-all duration-300 ${
+                    isNightTime() 
+                      ? 'text-gray-300 hover:text-white hover:bg-white/5' 
+                      : 'text-gray-700 hover:text-gray-900 hover:bg-black/5'
+                  }`}
+                  aria-label="Previous day"
+                >
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M15 19l-7-7 7-7" />
+                  </svg>
+                </button>
+                <div className={`font-serif text-sm tracking-wide px-4 py-1.5 rounded-xl ${
+                  isNightTime() 
+                    ? 'bg-gray-800/30 text-gray-200 backdrop-blur-sm' 
+                    : 'bg-black/5 text-gray-800 backdrop-blur-sm'
+                }`}>
+                  {format(selectedDate, 'EEEE, d MMMM yyyy')}
+                </div>
+                <button
+                  onClick={() => setSelectedDate(d => addDays(d, 1))}
+                  className={`p-2.5 rounded-xl transition-all duration-300 ${
+                    isNightTime() 
+                      ? 'text-gray-300 hover:text-white hover:bg-white/5' 
+                      : 'text-gray-700 hover:text-gray-900 hover:bg-black/5'
+                  }`}
+                  aria-label="Next day"
+                >
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M9 5l7 7-7 7" />
+                  </svg>
+                </button>
               </div>
-            )}
-
-            <div className="md:col-span-2">
-              <div className={`p-4 rounded-2xl transition-all duration-300 ${
+              
+              <div className={`rounded-2xl overflow-hidden transition-all duration-300 ${
                 isNightTime() 
                   ? 'bg-gray-800/40 backdrop-blur-md shadow-xl shadow-black/10' 
                   : 'bg-white/80 backdrop-blur-md shadow-xl shadow-black/5'
               }`}>
-                <div className="flex items-center justify-center gap-2 mb-3">
-                  <Clock className={`w-5 h-5 ${
-                    isNightTime() ? 'text-emerald-400' : 'text-emerald-600'
-                  }`} />
-                  <h2 className={`text-base font-medium ${
-                    isNightTime() ? 'text-white' : 'text-gray-900'
-                  }`}>
-                    Current Prayer
-                  </h2>
-                </div>
-                <div className="text-center">
-                  <div className={`text-3xl font-bold mb-1 ${
-                    isNightTime() 
-                      ? 'text-emerald-400 drop-shadow-glow-emerald' 
-                      : 'text-emerald-600'
-                  }`}>
-                    {currentPrayer || 'None'}
-                  </div>
-                  <div className={`text-sm font-medium ${
-                    isNightTime() ? 'text-gray-400' : 'text-gray-600'
-                  }`}>
-                    {currentPrayer ? 'In Progress' : 'No Active Prayer'}
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {activeTab === 'schedule' && prayerTimes && (
-          <div className="overflow-hidden rounded-2xl">
-            <div className="flex justify-between items-center mb-3 px-1">
-              <button
-                onClick={() => setSelectedDate(d => addDays(d, -1))}
-                className={`p-2.5 rounded-xl transition-all duration-300 ${
-                  isNightTime() 
-                    ? 'text-gray-300 hover:text-white hover:bg-white/5' 
-                    : 'text-gray-700 hover:text-gray-900 hover:bg-black/5'
-                }`}
-                aria-label="Previous day"
-              >
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M15 19l-7-7 7-7" />
-                </svg>
-              </button>
-              <div className={`font-serif text-sm tracking-wide px-4 py-1.5 rounded-xl ${
-                isNightTime() 
-                  ? 'bg-gray-800/30 text-gray-200 backdrop-blur-sm' 
-                  : 'bg-black/5 text-gray-800 backdrop-blur-sm'
-              }`}>
-                {format(selectedDate, 'EEEE, d MMMM yyyy')}
-              </div>
-              <button
-                onClick={() => setSelectedDate(d => addDays(d, 1))}
-                className={`p-2.5 rounded-xl transition-all duration-300 ${
-                  isNightTime() 
-                    ? 'text-gray-300 hover:text-white hover:bg-white/5' 
-                    : 'text-gray-700 hover:text-gray-900 hover:bg-black/5'
-                }`}
-                aria-label="Next day"
-              >
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M9 5l7 7-7 7" />
-                </svg>
-              </button>
-            </div>
-            
-            <div className={`rounded-2xl overflow-hidden transition-all duration-300 ${
-              isNightTime() 
-                ? 'bg-gray-800/40 backdrop-blur-md shadow-xl shadow-black/10' 
-                : 'bg-white/80 backdrop-blur-md shadow-xl shadow-black/5'
-            }`}>
-              <table className="w-full">
-                <thead>
-                  <tr className={`border-b ${
-                    isNightTime() ? 'border-gray-700/50' : 'border-gray-200/50'
-                  }`}>
-                    <th className={`px-4 py-3 text-left text-sm font-medium ${
-                      isNightTime() ? 'text-gray-200' : 'text-gray-700'
-                    }`}>Prayer</th>
-                    <th className={`px-4 py-3 text-left text-sm font-medium ${
-                      isNightTime() ? 'text-gray-200' : 'text-gray-700'
-                    }`}>Adhan</th>
-                    <th className={`px-4 py-3 text-left text-sm font-medium ${
-                      isNightTime() ? 'text-gray-200' : 'text-gray-700'
-                    }`}>Iqama</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {Object.entries(prayerTimes).map(([name, time]) => (
-                    <tr key={name} className={`
-                      transition-colors duration-300
-                      ${nextPrayer?.name.toLowerCase() === name.toLowerCase() && !nextPrayer.isIqama
-                        ? isNightTime()
-                          ? 'bg-emerald-600/90 text-white'
-                          : 'bg-emerald-600 text-white'
-                        : isNightTime() ? 'text-gray-200' : 'text-gray-800'
+                <table className="w-full">
+                  <thead>
+                    <tr className={`border-b ${
+                      isNightTime() ? 'border-gray-700/50' : 'border-gray-200/50'
+                    }`}>
+                      <th className={`px-4 py-3 text-left text-sm font-medium ${
+                        isNightTime() ? 'text-gray-200' : 'text-gray-700'
+                      }`}>Prayer</th>
+                      <th className={`px-4 py-3 text-left text-sm font-medium ${
+                        isNightTime() ? 'text-gray-200' : 'text-gray-700'
+                      }`}>Adhan</th>
+                      <th className={`px-4 py-3 text-left text-sm font-medium ${
+                        isNightTime() ? 'text-gray-200' : 'text-gray-700'
+                      }`}>Iqama</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {Object.entries(prayerTimes).map(([name, time]) => (
+                      <tr key={name} className={`
+                        transition-colors duration-300
+                        ${nextPrayer?.name.toLowerCase() === name.toLowerCase() && !nextPrayer.isIqama
+                          ? isNightTime()
+                            ? 'bg-emerald-600/90 text-white'
+                            : 'bg-emerald-600 text-white'
+                          : isNightTime() ? 'text-gray-200' : 'text-gray-800'
                       }
                       border-b ${isNightTime() ? 'border-gray-700/50' : 'border-gray-200/50'}
                       hover:bg-black/5
                     `}>
-                      <td className="px-4 py-3">
-                        <div className="flex items-center gap-2">
-                          {getPrayerIcon(name)}
-                          <span className="text-sm font-medium">{name.charAt(0).toUpperCase() + name.slice(1)}</span>
-                        </div>
-                      </td>
-                      <td className="px-4 py-3 text-sm font-medium">{format(time, 'HH:mm')}</td>
-                      <td className="px-4 py-3 text-sm font-medium">
-                        {name !== 'sunrise' && format(new Date(time.getTime() + (settings.iqamaAdjustments[name] || 0) * 60000), 'HH:mm')}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+                        <td className="px-4 py-3">
+                          <div className="flex items-center gap-2">
+                            {getPrayerIcon(name)}
+                            <span className="text-sm font-medium">{name.charAt(0).toUpperCase() + name.slice(1)}</span>
+                          </div>
+                        </td>
+                        <td className="px-4 py-3 text-sm font-medium">{format(time, 'HH:mm')}</td>
+                        <td className="px-4 py-3 text-sm font-medium">
+                          {name !== 'sunrise' && format(new Date(time.getTime() + (settings.iqamaAdjustments[name] || 0) * 60000), 'HH:mm')}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
             </div>
-          </div>
-        )}
-
-        <div className="fixed bottom-4 right-4">
-          <button 
-            onClick={() => setIsSettingsOpen(true)}
-            className={`p-3 rounded-xl transition-all duration-300 ${
-              isNightTime()
-                ? 'bg-emerald-600/90 text-white shadow-lg shadow-emerald-600/20 hover:bg-emerald-500/90'
-                : 'bg-emerald-600 text-white shadow-lg shadow-emerald-600/20 hover:bg-emerald-500'
-            }`}
-            aria-label="Settings"
-          >
-            <Settings className="w-5 h-5" />
-          </button>
+          )}
         </div>
-
-        <div className="fixed bottom-4 left-4">
-          <button 
-            onClick={() => setIsQiblaOpen(true)}
-            className={`p-3 rounded-xl transition-all duration-300 ${
-              isNightTime()
-                ? 'bg-emerald-600/90 text-white shadow-lg shadow-emerald-600/20 hover:bg-emerald-500/90'
-                : 'bg-emerald-600 text-white shadow-lg shadow-emerald-600/20 hover:bg-emerald-500'
-            }`}
-            aria-label="Qibla Direction"
-          >
-            <Compass className="w-5 h-5" />
-          </button>
-        </div>
-
-        <SettingsPanel
-          isOpen={isSettingsOpen}
-          onClose={() => setIsSettingsOpen(false)}
-          calculationMethod={settings.calculationMethod}
-          onMethodChange={(method) => updateSettings({ calculationMethod: method })}
-          asrCalculation={settings.asrCalculation}
-          onAsrCalculationChange={(method) => updateSettings({ asrCalculation: method })}
-          iqamaAdjustments={settings.iqamaAdjustments}
-          onIqamaAdjustmentChange={(prayer, minutes) => 
-            updateSettings({
-              iqamaAdjustments: {
-                ...settings.iqamaAdjustments,
-                [prayer]: minutes
-              }
-            })
-          }
-          timeAdjustments={settings.timeAdjustments}
-          onTimeAdjustmentChange={(prayer, minutes) =>
-            updateSettings({
-              timeAdjustments: {
-                ...settings.timeAdjustments,
-                [prayer.toLowerCase()]: minutes
-              }
-            })
-          }
-          notificationsEnabled={settings.notificationsEnabled}
-          onNotificationToggle={() => 
-            updateSettings({ notificationsEnabled: !settings.notificationsEnabled })
-          }
-        />
-
-        <QiblaDirection
-          isOpen={isQiblaOpen}
-          onClose={() => setIsQiblaOpen(false)}
-          coordinates={coordinates || { latitude: -6.2088, longitude: 106.8456 }}
-        />
-
-        <CitySelector
-          isOpen={isCitySelectorOpen}
-          onClose={() => setIsCitySelectorOpen(false)}
-          onCitySelect={handleCitySelect}
-        />
       </div>
+
+      <div className="fixed bottom-4 right-4 safe-bottom safe-right">
+        <button 
+          onClick={() => setIsSettingsOpen(true)}
+          className={`p-3 rounded-xl transition-all duration-300 ${
+            isNightTime()
+              ? 'bg-emerald-600/90 text-white shadow-lg shadow-emerald-600/20 hover:bg-emerald-500/90'
+              : 'bg-emerald-600 text-white shadow-lg shadow-emerald-600/20 hover:bg-emerald-500'
+          }`}
+          aria-label="Settings"
+        >
+          <Settings className="w-5 h-5" />
+        </button>
+      </div>
+
+      <div className="fixed bottom-4 left-4 safe-bottom safe-left">
+        <button 
+          onClick={() => setIsQiblaOpen(true)}
+          className={`p-3 rounded-xl transition-all duration-300 ${
+            isNightTime()
+              ? 'bg-emerald-600/90 text-white shadow-lg shadow-emerald-600/20 hover:bg-emerald-500/90'
+              : 'bg-emerald-600 text-white shadow-lg shadow-emerald-600/20 hover:bg-emerald-500'
+          }`}
+          aria-label="Qibla Direction"
+        >
+          <Compass className="w-5 h-5" />
+        </button>
+      </div>
+
+      <SettingsPanel
+        isOpen={isSettingsOpen}
+        onClose={() => setIsSettingsOpen(false)}
+        calculationMethod={settings.calculationMethod}
+        onMethodChange={(method) => updateSettings({ calculationMethod: method })}
+        asrCalculation={settings.asrCalculation}
+        onAsrCalculationChange={(method) => updateSettings({ asrCalculation: method })}
+        iqamaAdjustments={settings.iqamaAdjustments}
+        onIqamaAdjustmentChange={(prayer, minutes) => 
+          updateSettings({
+            iqamaAdjustments: {
+              ...settings.iqamaAdjustments,
+              [prayer]: minutes
+            }
+          })
+        }
+        timeAdjustments={settings.timeAdjustments}
+        onTimeAdjustmentChange={(prayer, minutes) =>
+          updateSettings({
+            timeAdjustments: {
+              ...settings.timeAdjustments,
+              [prayer.toLowerCase()]: minutes
+            }
+          })
+        }
+        notificationsEnabled={settings.notificationsEnabled}
+        onNotificationToggle={() => 
+          updateSettings({ notificationsEnabled: !settings.notificationsEnabled })
+        }
+      />
+
+      <QiblaDirection
+        isOpen={isQiblaOpen}
+        onClose={() => setIsQiblaOpen(false)}
+        coordinates={coordinates || { latitude: -6.2088, longitude: 106.8456 }}
+      />
+
+      <CitySelector
+        isOpen={isCitySelectorOpen}
+        onClose={() => setIsCitySelectorOpen(false)}
+        onCitySelect={handleCitySelect}
+      />
     </div>
   );
 }
