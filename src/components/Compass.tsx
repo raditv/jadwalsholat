@@ -113,47 +113,70 @@ const CompassDial = ({ heading, qiblaDirection }: CompassDialProps) => {
   const normalize = (angle: number) => ((angle % 360) + 360) % 360;
 
   // Background kompas berputar untuk menunjukkan arah mata angin sebenarnya
-  // Jika device menghadap timur (90°), background harus berputar -90° 
-  // agar utara berada di kiri (karena device/jarum menghadap ke timur)
   const dialRotation = normalize(-heading);
   
   // Jarum tetap menghadap ke depan (arah device)
   const needleRotation = 0;
 
+  // Hitung posisi qibla relatif terhadap kompas
+  // Radius = setengah lebar kompas + jarak dari tepi
+  const qiblaRadius = 150 + 25; // 150 = setengah dari 300px (ukuran kompas)
+  const qiblaAngle = normalize(qiblaDirection + dialRotation); // Sesuaikan dengan rotasi kompas
+  const qiblaX = qiblaRadius * Math.cos((qiblaAngle - 90) * Math.PI / 180);
+  const qiblaY = qiblaRadius * Math.sin((qiblaAngle - 90) * Math.PI / 180);
+
   return (
-    <div className="relative w-[300px] h-[300px] mx-auto">
-      {/* Kompas background - berputar mengikuti arah mata angin */}
-      <div 
-        className="absolute inset-0 flex items-center justify-center transition-transform duration-300 ease-out"
-        style={{ transform: `rotate(${dialRotation}deg)` }}
-      >
-        <img 
-          src="/compas.png" 
-          alt="Compass" 
-          className="w-[300px] h-[300px] object-contain"
-        />
+    <div className="relative w-[350px] h-[350px] mx-auto"> {/* Perbesar container untuk menampung qibla indicator */}
+      <div className="absolute left-1/2 top-1/2 w-[300px] h-[300px] -translate-x-1/2 -translate-y-1/2">
+        {/* Kompas background - berputar mengikuti arah mata angin */}
+        <div 
+          className="absolute inset-0 flex items-center justify-center transition-transform duration-300 ease-out"
+          style={{ transform: `rotate(${dialRotation}deg)` }}
+        >
+          <img 
+            src="/compas.png" 
+            alt="Compass" 
+            className="w-[300px] h-[300px] object-contain"
+          />
+        </div>
+
+        {/* Jarum kompas tetap (menunjukkan arah device) */}
+        <div
+          className="absolute left-1/2 top-1/2"
+          style={{ 
+            transform: `translate(-50%, -50%) rotate(${needleRotation}deg)`,
+            transformOrigin: "center center",
+            width: '40px',
+            height: '120px'
+          }}
+        >
+          <img 
+            src="/needle.png" 
+            alt="Device Direction" 
+            className="w-full h-full object-contain"
+          />
+        </div>
+
+        {/* Titik pusat kompas */}
+        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
+          <div className="w-3 h-3 bg-gray-800 dark:bg-gray-200 rounded-full" />
+        </div>
       </div>
 
-      {/* Jarum kompas tetap (menunjukkan arah device) */}
+      {/* Qibla indicator */}
       <div
-        className="absolute left-1/2 top-1/2"
-        style={{ 
-          transform: `translate(-50%, -50%) rotate(${needleRotation}deg)`,
-          transformOrigin: "center center",
-          width: '40px',
-          height: '120px'
+        className="absolute left-1/2 top-1/2 transition-transform duration-300 ease-out"
+        style={{
+          transform: `translate(calc(-50% + ${qiblaX}px), calc(-50% + ${qiblaY}px))`,
+          width: '30px',
+          height: '30px'
         }}
       >
-        <img 
-          src="/needle.png" 
-          alt="Device Direction" 
+        <img
+          src="/qibla.png"
+          alt="Qibla Direction"
           className="w-full h-full object-contain"
         />
-      </div>
-
-      {/* Titik pusat kompas */}
-      <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
-        <div className="w-3 h-3 bg-gray-800 dark:bg-gray-200 rounded-full" />
       </div>
     </div>
   );
