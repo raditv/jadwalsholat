@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Privacy Policy - Jadwal Sholat</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            line-height: 1.6;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            color: #333;
+        }
+        h1, h2 {
+            color: #2c3e50;
+        }
+        .language-switch {
+            text-align: right;
+            margin-bottom: 20px;
+        }
+        .language-switch a {
+            color: #3498db;
+            text-decoration: none;
+            margin-left: 10px;
+        }
+        .content {
+            display: none;
+        }
+        .active {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <div class="language-switch">
+        <a href="#" onclick="showLanguage('id')">🇮🇩 Bahasa Indonesia</a>
+        <a href="#" onclick="showLanguage('en')">🇬🇧 English</a>
+    </div>
+
+    <div id="id" class="content active">
+        <h1>Kebijakan Privasi - Jadwal Sholat</h1>
+        <p>Terakhir diperbarui: 2024</p>
+
+        <h2>Pengumpulan dan Penggunaan Data</h2>
+        <p>Aplikasi Jadwal Sholat tidak mengumpulkan, menyimpan, atau membagikan data pribadi pengguna. Semua perhitungan dan fungsi aplikasi dilakukan secara lokal di perangkat Anda.</p>
+
+        <h2>Izin yang Dibutuhkan</h2>
+        <p>Aplikasi memerlukan izin berikut untuk berfungsi dengan baik:</p>
+        <ul>
+            <li><strong>Lokasi:</strong> Digunakan untuk menentukan koordinat pengguna guna menghitung arah kiblat yang akurat.</li>
+            <li><strong>Sensor Perangkat:</strong> Digunakan untuk mengakses sensor kompas guna menentukan arah kiblat.</li>
+        </ul>
+        <p>Data lokasi dan sensor hanya digunakan secara lokal dan tidak dikirim ke server manapun.</p>
+
+        <h2>Penyimpanan Data</h2>
+        <p>Aplikasi tidak menyimpan data pengguna secara permanen. Semua data yang diperlukan untuk operasi aplikasi disimpan sementara di perangkat Anda dan akan dihapus saat aplikasi ditutup.</p>
+
+        <h2>Perubahan pada Kebijakan Privasi</h2>
+        <p>Kami dapat memperbarui kebijakan privasi ini dari waktu ke waktu. Kami akan memberitahu Anda tentang perubahan apa pun dengan memposting kebijakan privasi baru di halaman ini.</p>
+
+        <h2>Hubungi Kami</h2>
+        <p>Jika Anda memiliki pertanyaan tentang kebijakan privasi ini, silakan hubungi kami di: radit@arkana.co.id</p>
+    </div>
+
+    <div id="en" class="content">
+        <h1>Privacy Policy - Jadwal Sholat</h1>
+        <p>Last updated: 2024</p>
+
+        <h2>Data Collection and Usage</h2>
+        <p>The Jadwal Sholat application does not collect, store, or share any user personal data. All calculations and application functions are performed locally on your device.</p>
+
+        <h2>Required Permissions</h2>
+        <p>The application requires the following permissions to function properly:</p>
+        <ul>
+            <li><strong>Location:</strong> Used to determine user coordinates for accurate Qibla direction calculation.</li>
+            <li><strong>Device Sensors:</strong> Used to access the compass sensor for determining Qibla direction.</li>
+        </ul>
+        <p>Location and sensor data are used locally only and are not sent to any server.</p>
+
+        <h2>Data Storage</h2>
+        <p>The application does not permanently store user data. All data required for application operation is stored temporarily on your device and will be deleted when the application is closed.</p>
+
+        <h2>Changes to Privacy Policy</h2>
+        <p>We may update this privacy policy from time to time. We will notify you of any changes by posting the new privacy policy on this page.</p>
+
+        <h2>Contact Us</h2>
+        <p>If you have any questions about this privacy policy, please contact us at: radit@arkana.co.id</p>
+    </div>
+
+    <script>
+        function showLanguage(lang) {
+            document.querySelectorAll('.content').forEach(el => {
+                el.classList.remove('active');
+            });
+            document.getElementById(lang).classList.add('active');
+        }
+    </script>
+</body>
+</html> 

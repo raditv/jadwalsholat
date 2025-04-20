@@ -351,10 +351,10 @@ function App() {
         ? 'bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900' 
         : 'bg-gradient-to-br from-emerald-50 via-blue-50 to-emerald-50'
     }`}>
-      <div className="container mx-auto px-4 py-8 safe-top safe-left safe-right">
+      <div className="container mx-auto px-6 pt-[calc(env(safe-area-inset-top)+48px)] pb-8 safe-left safe-right">
         <div className="flex flex-col space-y-6">
-          <header className="text-center mb-6">
-            <div className="relative flex items-center justify-center mb-2 w-8 h-8 mx-auto">
+          <header className="text-center">
+            <div className="relative flex items-center justify-center mb-4 w-8 h-8 mx-auto">
               {isNightTime() ? (
                 <>
                   <Star className={`absolute w-8 h-8 text-emerald-400 drop-shadow-glow-emerald`} />
@@ -368,7 +368,7 @@ function App() {
                 </>
               )}
             </div>
-            <div className="flex items-center justify-between">
+            <div className="flex items-center justify-center">
               <div className="flex items-center space-x-2">
                 <MapPin className="w-5 h-5 text-emerald-600" />
                 <button 
@@ -564,7 +564,7 @@ function App() {
         </div>
       </div>
 
-      <div className="fixed bottom-4 right-4 safe-bottom safe-right">
+      <div className="fixed bottom-6 right-6 safe-bottom safe-right">
         <button 
           onClick={() => setIsSettingsOpen(true)}
           className={`p-3 rounded-xl transition-all duration-300 ${
@@ -578,7 +578,7 @@ function App() {
         </button>
       </div>
 
-      <div className="fixed bottom-4 left-4 safe-bottom safe-left">
+      <div className="fixed bottom-6 left-6 safe-bottom safe-left">
         <button 
           onClick={() => setIsQiblaOpen(true)}
           className={`p-3 rounded-xl transition-all duration-300 ${
@@ -621,6 +621,7 @@ function App() {
         onNotificationToggle={() => 
           updateSettings({ notificationsEnabled: !settings.notificationsEnabled })
         }
+        className="pt-[calc(env(safe-area-inset-top)+48px)]"
       />
 
       <QiblaDirection

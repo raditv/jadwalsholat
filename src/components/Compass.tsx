@@ -82,6 +82,7 @@ interface CompassProps {
 const Compass = ({ deviceOrientation, qiblaDirection }: CompassProps) => {
   const compassState = useCompass(100);
   const heading = compassState?.degree ?? deviceOrientation ?? 0;
+  const needsCalibration = compassState?.accuracy && compassState.accuracy > 10;
 
   return (
     <div className="flex-1 flex flex-col items-center justify-center p-4">
@@ -91,11 +92,15 @@ const Compass = ({ deviceOrientation, qiblaDirection }: CompassProps) => {
           Arah Kiblat: {qiblaDirection.toFixed(2)}°
         </p>
         <p className="text-sm text-gray-600 dark:text-gray-400">
-          Arah Perangkat: {heading.toFixed(2)}°
+          Arah Perangkat: {heading.toFixed(2)}° dari Utara
         </p>
-        {compassState && compassState.accuracy !== null && (
-          <p className="text-sm text-gray-600 dark:text-gray-400">
-            Akurasi: ±{compassState.accuracy.toFixed(2)}°
+        {needsCalibration ? (
+          <p className="text-sm text-amber-600 dark:text-amber-400 mt-2">
+            Need Calibration
+          </p>
+        ) : (
+          <p className="text-sm text-emerald-600 dark:text-emerald-400 mt-2">
+            Calibrated
           </p>
         )}
       </div>

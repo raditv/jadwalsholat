@@ -2,89 +2,39 @@
 @tailwind components;
 @tailwind utilities;
 
-:root {
-  --safe-area-top: env(safe-area-inset-top);
-  --safe-area-right: env(safe-area-inset-right);
-  --safe-area-bottom: env(safe-area-inset-bottom);
-  --safe-area-left: env(safe-area-inset-left);
+.header {
+  padding-top: env(safe-area-inset-top);
 }
 
-@layer base {
-  body {
-    @apply antialiased text-gray-900 bg-gray-50;
-  }
-
-  /* Safe area insets for mobile */
-  .header {
-    padding-top: max(1rem, var(--safe-area-top));
-  }
-  
-  .footer {
-    padding-bottom: max(1rem, var(--safe-area-bottom));
-  }
-  
-  .safe-left {
-    padding-left: var(--safe-area-left);
-  }
-  
-  .safe-right {
-    padding-right: var(--safe-area-right);
-  }
+/* Hide scrollbar for Chrome, Safari and Opera */
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
 }
 
-@layer components {
-  .prayer-card {
-    @apply rounded-lg p-6 bg-white shadow-md transition-all duration-300 hover:shadow-lg;
-  }
-  
-  .prayer-card-active {
-    @apply bg-emerald-600 text-white shadow-lg scale-105;
-  }
-
-  /* Tambahan untuk kompas */
-  .compass-dial {
-    @apply relative w-64 h-64;
-  }
-  
-  .compass-dial-outer {
-    @apply absolute inset-0 rounded-full border-4 border-gray-300 dark:border-gray-500;
-  }
-  
-  .compass-marker {
-    @apply absolute text-gray-800 dark:text-gray-200;
-  }
-  
-  .compass-arrow {
-    @apply absolute inset-0 flex items-center justify-center transition-transform duration-300 ease-out;
-  }
-  
-  .compass-center {
-    @apply absolute inset-0 flex items-center justify-center;
-  }
+/* Hide scrollbar for IE, Edge and Firefox */
+.scrollbar-hide {
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width: none;  /* Firefox */
 }
 
-@layer utilities {
-  .drop-shadow-glow-emerald {
-    filter: drop-shadow(0 0 0.5rem rgb(52 211 153 / 0.3));
-  }
-  
-  .drop-shadow-glow-amber {
-    filter: drop-shadow(0 0 0.5rem rgb(251 191 36 / 0.3));
-  }
-  
-  .safe-top {
-    padding-top: var(--safe-area-top);
-  }
-  
-  .safe-right {
-    padding-right: var(--safe-area-right);
-  }
-  
-  .safe-bottom {
-    padding-bottom: var(--safe-area-bottom);
-  }
-  
-  .safe-left {
-    padding-left: var(--safe-area-left);
-  }
+/* Glass effect for cards */
+.glass-card {
+  @apply backdrop-blur-xl bg-gradient-to-br from-white/10 to-white/5 border border-white/10;
+}
+
+/* Ensure content is scrollable within cards */
+.card-content {
+  height: 100%;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Hide scrollbars but keep functionality */
+.card-content {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.card-content::-webkit-scrollbar {
+  display: none;
 }

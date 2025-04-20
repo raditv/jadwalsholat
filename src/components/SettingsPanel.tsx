@@ -15,6 +15,7 @@ interface SettingsPanelProps {
   onTimeAdjustmentChange: (prayer: string, minutes: number) => void;
   notificationsEnabled: boolean;
   onNotificationToggle: () => void;
+  className?: string;
 }
 
 const CALCULATION_METHODS: { value: CalculationMethod; label: string }[] = [
@@ -51,6 +52,7 @@ export function SettingsPanel({
   onTimeAdjustmentChange,
   notificationsEnabled,
   onNotificationToggle,
+  className = '',
 }: SettingsPanelProps) {
   if (!isOpen) return null;
 
@@ -82,7 +84,7 @@ export function SettingsPanel({
         }`}
         onClick={e => e.stopPropagation()}
       >
-        <div className="h-full overflow-y-auto">
+        <div className={`h-full overflow-y-auto ${className}`}>
           <div className="p-6">
             <div className="flex justify-between items-center mb-6">
               <h2 className="text-2xl font-bold text-gray-900">Settings</h2>
