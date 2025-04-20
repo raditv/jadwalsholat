@@ -112,13 +112,13 @@ const CompassDial = ({ heading, qiblaDirection }: CompassDialProps) => {
   // Fungsi normalisasi sudut ke rentang 0 - 360 derajat
   const normalize = (angle: number) => ((angle % 360) + 360) % 360;
 
-  // Background kompas berputar untuk menyesuaikan dengan arah mata angin sebenarnya
-  // Jika device menghadap timur (90°), background harus berputar -90° agar utara tetap di utara
-  const dialRotation = normalize(-heading);
+  // Background kompas berputar untuk menunjukkan arah mata angin sebenarnya
+  // Jika device menghadap timur (90°), background harus berputar -90° 
+  // agar utara berada di kiri (karena device/jarum menghadap ke timur)
+  const dialRotation = normalize(heading);
   
-  // Jarum berputar sesuai arah device
-  // Jika device menghadap timur (90°), jarum juga harus 90°
-  const needleRotation = normalize(heading);
+  // Jarum tetap menghadap ke depan (arah device)
+  const needleRotation = 0;
 
   return (
     <div className="relative w-[300px] h-[300px] mx-auto">
@@ -134,9 +134,9 @@ const CompassDial = ({ heading, qiblaDirection }: CompassDialProps) => {
         />
       </div>
 
-      {/* Jarum kompas berputar sesuai arah device */}
+      {/* Jarum kompas tetap (menunjukkan arah device) */}
       <div
-        className="absolute left-1/2 top-1/2 transition-transform duration-300 ease-out"
+        className="absolute left-1/2 top-1/2"
         style={{ 
           transform: `translate(-50%, -50%) rotate(${needleRotation}deg)`,
           transformOrigin: "center center",
