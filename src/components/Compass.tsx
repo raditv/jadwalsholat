@@ -115,7 +115,7 @@ const CompassDial = ({ heading, qiblaDirection }: CompassDialProps) => {
   // Background kompas berputar untuk menunjukkan arah mata angin sebenarnya
   // Jika device menghadap timur (90°), background harus berputar -90° 
   // agar utara berada di kiri (karena device/jarum menghadap ke timur)
-  const dialRotation = normalize(heading);
+  const dialRotation = normalize(-heading);
   
   // Jarum tetap menghadap ke depan (arah device)
   const needleRotation = 0;
